@@ -18,9 +18,10 @@ class BackupController extends Controller
 {
     private function getGoogleClient()
     {
-        $clientId = env('GOOGLE_DRIVE_CLIENT_ID');
-        $clientSecret = env('GOOGLE_DRIVE_CLIENT_SECRET');
-        $refreshToken = env('GOOGLE_DRIVE_REFRESH_TOKEN');
+        // Menggunakan config() agar aman saat artisan config:cache di live server
+        $clientId = config('services.google_drive.client_id');
+        $clientSecret = config('services.google_drive.client_secret');
+        $refreshToken = config('services.google_drive.refresh_token');
 
         if (!$clientId || !$clientSecret || !$refreshToken) {
             return null;
@@ -49,7 +50,7 @@ class BackupController extends Controller
         if ($client) {
             try {
                 $service = new GoogleDrive($client);
-                $folderId = env('GOOGLE_DRIVE_FOLDER_ID');
+                $folderId = config('services.google_drive.folder_id');
                 
                 $query = "mimeType = 'application/zip' and trashed = false";
                 if ($folderId) {
@@ -167,9 +168,11 @@ class BackupController extends Controller
             
             if ($client) {
                 $service = new GoogleDrive($client);
+                $folderId = config('services.google_drive.folder_id');
+
                 $fileMetadata = new \Google\Service\Drive\DriveFile([
                     'name' => $filename,
-                    'parents' => env('GOOGLE_DRIVE_FOLDER_ID') ? [env('GOOGLE_DRIVE_FOLDER_ID')] : null
+                    'parents' => $folderId ? [$folderId] : null
                 ]);
 
                 $content = file_get_contents($zipPath);
