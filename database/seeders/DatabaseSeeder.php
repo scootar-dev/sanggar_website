@@ -8,7 +8,8 @@ class DatabaseSeeder extends Seeder {
     public function run(): void {
         User::updateOrCreate(['email'=>'admin@sanggarmulya.id'],[
             'name'=>'Admin Sanggar','alamat'=>'Indramayu, Jawa Barat',
-            'password'=>Hash::make('admin123'),'role'=>'admin','status'=>'aktif']);
+            'password'=>Hash::make('admin123'),'role'=>'admin','status'=>'aktif',
+            'email_verified_at'=>now()]);
         foreach([
             ['name'=>'Siti Rahayu','email'=>'siti@example.com','alamat'=>'Jl. Melati No. 12, Indramayu','no_hp'=>'081234567890'],
             ['name'=>'Budi Santoso','email'=>'budi@example.com','alamat'=>'Jl. Mawar No. 5, Cirebon','no_hp'=>'082345678901'],

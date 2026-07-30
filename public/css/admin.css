@@ -84,12 +84,12 @@ img { display: block; max-width: 100%; }
     border-radius: var(--radius-sm);
     font-size: .875rem; font-weight: 500;
     color: rgba(255,255,255,.65);
-    transition: all .2s;
+    transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease, box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     border: none; background: none; width: 100%; text-align: left;
 }
-.nav-item:hover  { background: rgba(255,255,255,.07); color: #fff; }
-.nav-item.active { background: var(--p); color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(198,93,46,.35); }
+.nav-item:hover  { background: rgba(255,255,255,.09); color: #fff; transform: translateX(3px); }
+.nav-item.active { background: var(--p); color: #fff; font-weight: 600; box-shadow: 0 4px 14px rgba(198,93,46,.4); transform: translateX(0); }
 .nav-badge {
     margin-left: auto;
     background: var(--p);

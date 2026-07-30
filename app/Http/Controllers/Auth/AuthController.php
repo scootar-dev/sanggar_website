@@ -62,14 +62,10 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            // Admin selalu bisa login tanpa OTP
-            // Akun lama (sebelum sistem OTP) juga langsung masuk & otomatis diverifikasi
+            // Akun lama (sebelum sistem OTP) otomatis diverifikasi
+            // Akun baru yang belum verifikasi: harus lewat OTP
             if (is_null($user->email_verified_at)) {
-                if ($user->role === 'admin') {
-                    // Admin: bypass OTP, langsung verifikasi
-                    $user->email_verified_at = now();
-                    $user->save();
-                } elseif ($user->created_at < '2026-05-21') {
+                if ($user->created_at < '2026-05-21') {
                     // Akun lama (sebelum OTP system): auto-verifikasi
                     $user->email_verified_at = now();
                     $user->save();

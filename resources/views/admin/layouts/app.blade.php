@@ -134,6 +134,30 @@
             </form>
         </div>
     </nav>
+    <script>
+    (function() {
+        var sb = document.getElementById('sidebar');
+        if (!sb) return;
+        var saved = sessionStorage.getItem('sidebar_scroll_pos');
+        if (saved !== null) {
+            sb.scrollTop = parseInt(saved, 10);
+        } else {
+            var active = sb.querySelector('.nav-item.active');
+            if (active) {
+                sb.scrollTop = active.offsetTop - (sb.clientHeight / 2) + (active.clientHeight / 2);
+            }
+        }
+        sb.addEventListener('click', function(e) {
+            var link = e.target.closest('a.nav-item');
+            if (link) {
+                sessionStorage.setItem('sidebar_scroll_pos', sb.scrollTop);
+            }
+        });
+        sb.addEventListener('scroll', function() {
+            sessionStorage.setItem('sidebar_scroll_pos', sb.scrollTop);
+        }, { passive: true });
+    })();
+    </script>
 </aside>
 
 {{-- ── OVERLAY ── --}}

@@ -11,7 +11,6 @@ use Illuminate\Queue\SerializesModels;
 
 class OtpRegistrationMail extends Mailable
 {
-    use Queueable, SerializesModels;
 
     public $otp;
 
