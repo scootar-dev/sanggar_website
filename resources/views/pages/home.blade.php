@@ -18,7 +18,7 @@
             <div class="hero-img-wrapper">
                 @php $heroFoto = $galeri->where('seksi','hero')->first(); @endphp
                 @if($heroFoto)
-                    <img src="{{ asset('storage/'.$heroFoto->file) }}"
+                    <img src="{{ asset('storage/'.$heroFoto->file) }}?v=2"
                          alt="{{ $profil->nama_sanggar }}"
                          class="hero-placeholder">
                 @else
@@ -69,12 +69,12 @@
         <div class="about-image">
             @php $aboutFoto = $galeri->where('seksi','about')->first(); @endphp
             @if($aboutFoto)
-                <img src="{{ asset('storage/'.$aboutFoto->file) }}"
+                <img src="{{ asset('storage/'.$aboutFoto->file) }}?v=2"
                      alt="Tentang {{ $profil->nama_sanggar }}"
                      class="about-placeholder"
                      style="object-fit:cover;width:100%;border-radius:var(--radius)">
             @elseif($profil->foto_sejarah)
-                <img src="{{ asset('storage/'.$profil->foto_sejarah) }}"
+                <img src="{{ asset('storage/'.$profil->foto_sejarah) }}?v=2"
                      alt="Tentang {{ $profil->nama_sanggar }}"
                      class="about-placeholder"
                      style="object-fit:cover;width:100%;border-radius:var(--radius)">
@@ -116,7 +116,7 @@
                     <div class="topeng-front" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 24px; background: white; box-shadow: 0 15px 35px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; border: 1px solid rgba(0,0,0,0.03);">
                         <div class="topeng-img-wrap" style="width: 160px; height: 160px; margin-bottom: 20px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); transition: transform 0.5s;">
                             @if($t->foto)
-                                <img src="{{ asset('storage/'.$t->foto) }}" alt="{{ $t->nama }}" style="width: 100%; height: 100%; object-fit: contain;">
+                                <img src="{{ asset('storage/'.$t->foto) }}?v=2" alt="{{ $t->nama }}" style="width: 100%; height: 100%; object-fit: contain;">
                             @else
                                 <div style="width: 100%; height: 100%; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -227,7 +227,7 @@
                 @for($k=0; $k<2; $k++)
                     @foreach($displayFotos->take(8) as $foto)
                     <a href="{{ route('digital-archive') }}" class="marquee-item">
-                        <img src="{{ asset('storage/'.$foto->file) }}"
+                        <img src="{{ asset('storage/'.$foto->file) }}?v=2"
                              alt="{{ $foto->judul ?? 'Arsip Digital' }}"
                              style="width:100%;height:100%;object-fit:cover;">
                     </a>
@@ -312,16 +312,16 @@
 
             @if($dokFotos->count() >= 4)
                 <a href="{{ route('galeri.frontend.index', 'dokumentasi') }}" class="bento-item bento-1">
-                    <img src="{{ asset('storage/' . $dokFotos[0]->file) }}" alt="Dokumentasi 1">
+                    <img src="{{ asset('storage/' . $dokFotos[0]->file) }}?v=2" alt="Dokumentasi 1">
                 </a>
                 <a href="{{ route('galeri.frontend.index', 'dokumentasi') }}" class="bento-item bento-2">
-                    <img src="{{ asset('storage/' . $dokFotos[1]->file) }}" alt="Dokumentasi 2">
+                    <img src="{{ asset('storage/' . $dokFotos[1]->file) }}?v=2" alt="Dokumentasi 2">
                 </a>
                 <a href="{{ route('galeri.frontend.index', 'dokumentasi') }}" class="bento-item bento-3">
-                    <img src="{{ asset('storage/' . $dokFotos[2]->file) }}" alt="Dokumentasi 3">
+                    <img src="{{ asset('storage/' . $dokFotos[2]->file) }}?v=2" alt="Dokumentasi 3">
                 </a>
                 <a href="{{ route('galeri.frontend.index', 'dokumentasi') }}" class="bento-item bento-4">
-                    <img src="{{ asset('storage/' . $dokFotos[3]->file) }}" alt="Dokumentasi 4">
+                    <img src="{{ asset('storage/' . $dokFotos[3]->file) }}?v=2" alt="Dokumentasi 4">
                 </a>
             @else
                 {{-- Fallback placeholders if less than 4 photos --}}
