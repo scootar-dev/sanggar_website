@@ -31,7 +31,11 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Copy Nginx config
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 
+# Copy entrypoint script
+COPY ./docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 80
 
-# Run PHP-FPM and Nginx together
-CMD php-fpm -D && nginx -g 'daemon off;'
+# Entrypoint: run storage:link then start services
+CMD ["/entrypoint.sh"]
