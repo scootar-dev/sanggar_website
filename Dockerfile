@@ -35,6 +35,9 @@ COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Copy custom PHP settings
+COPY ./docker/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+
 EXPOSE 80
 
 # Entrypoint: run storage:link then start services
