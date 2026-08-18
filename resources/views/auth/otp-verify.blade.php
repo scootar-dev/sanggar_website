@@ -8,7 +8,19 @@
         <div class="auth-form-wrap" style="max-width:480px;margin:auto">
             <span class="badge">Verifikasi Email</span>
             <h1 class="auth-title">Masukkan Kode OTP</h1>
-            <p class="auth-desc">Kode 6 digit telah dikirim ke email Anda. Berlaku 10 menit.</p>
+            <p class="auth-desc">
+                Kode 6 digit telah dikirim ke
+                @if(!empty($userEmail))
+                    <strong style="color:var(--primary, #c9a763)">{{ $userEmail }}</strong>.
+                @else
+                    email Anda.
+                @endif
+                Berlaku selama <strong>10 menit</strong>.
+            </p>
+            <div style="display:flex;align-items:flex-start;gap:10px;background:#FFF8E1;border:1px solid #FFD54F;border-radius:10px;padding:12px 16px;margin-bottom:8px;font-size:.82rem;color:#6D4C41">
+                <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">📩</span>
+                <span>Jika tidak menemukan email di kotak masuk, silakan periksa folder <strong>Spam</strong>.</span>
+            </div>
 
             <div class="auth-card">
 

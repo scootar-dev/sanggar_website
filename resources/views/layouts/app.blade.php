@@ -200,21 +200,21 @@
             <div class="footer-kontak">
                 <h4>Kontak</h4>
                 <ul>
-                    @if($siteProfil->alamat ?? false)<li>📍 {{ $siteProfil->alamat }}</li>@endif
-                    @if($siteProfil->no_hp ?? false)<li>📞 {{ $siteProfil->no_hp }}</li>@endif
-                    @if($siteProfil->email ?? false)<li>✉️ {{ $siteProfil->email }}</li>@endif
+                    @if($siteProfil->alamat ?? false)<li style="display:flex; gap:8px; align-items:flex-start;"><span style="flex-shrink:0;">📍</span> <span>{{ $siteProfil->alamat }}</span></li>@endif
+                    @if($siteProfil->no_hp ?? false)<li style="display:flex; gap:8px; align-items:flex-start;"><span style="flex-shrink:0;">📞</span> <span>{{ $siteProfil->no_hp }}</span></li>@endif
+                    @if($siteProfil->email ?? false)<li style="display:flex; gap:8px; align-items:flex-start;"><span style="flex-shrink:0;">✉️</span> <span>{{ $siteProfil->email }}</span></li>@endif
                 </ul>
             </div>
             <div class="footer-sosmed">
                 <h4>Ikuti Kami</h4>
                 <div class="sosmed-icons">
-                    <a href="{{ $siteProfil->instagram ? 'https://instagram.com/'.ltrim($siteProfil->instagram,'@') : '#' }}" aria-label="Instagram" target="_blank">
+                    <a href="{{ $siteProfil->instagram ? (str_starts_with($siteProfil->instagram, 'http') ? $siteProfil->instagram : 'https://instagram.com/'.ltrim($siteProfil->instagram, '@')) : '#' }}" aria-label="Instagram" target="_blank">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                     </a>
-                    <a href="{{ $siteProfil->facebook ? 'https://facebook.com/'.$siteProfil->facebook : '#' }}" aria-label="Facebook" target="_blank">
+                    <a href="{{ $siteProfil->facebook ? (str_starts_with($siteProfil->facebook, 'http') ? $siteProfil->facebook : 'https://facebook.com/'.ltrim($siteProfil->facebook, '@')) : '#' }}" aria-label="Facebook" target="_blank">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                     </a>
-                    <a href="{{ $siteProfil->youtube ? 'https://youtube.com/@'.$siteProfil->youtube : '#' }}" aria-label="YouTube" target="_blank">
+                    <a href="{{ $siteProfil->youtube ? (str_starts_with($siteProfil->youtube, 'http') ? $siteProfil->youtube : 'https://youtube.com/@'.ltrim($siteProfil->youtube, '@')) : '#' }}" aria-label="YouTube" target="_blank">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.54C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
                     </a>
                 </div>

@@ -37,6 +37,8 @@ class ProfileController extends Controller
             'no_hp'              => 'nullable|string|max:30',
             'email'              => 'nullable|email',
             'instagram'          => 'nullable|string',
+            'facebook'           => 'nullable|string',
+            'youtube'            => 'nullable|string',
             'jumlah_anggota'     => 'nullable|integer',
             'jumlah_penghargaan' => 'nullable|integer',
             'jumlah_event'       => 'nullable|integer',

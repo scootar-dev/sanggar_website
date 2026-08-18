@@ -62,7 +62,15 @@
             </div>
             <div class="form-group">
                 <label>Instagram</label>
-                <input type="text" name="instagram" class="form-control" value="{{ old('instagram',$profil->instagram) }}">
+                <input type="text" name="instagram" class="form-control" value="{{ old('instagram',$profil->instagram) }}" placeholder="username">
+            </div>
+            <div class="form-group">
+                <label>Facebook</label>
+                <input type="text" name="facebook" class="form-control" value="{{ old('facebook',$profil->facebook) }}" placeholder="username">
+            </div>
+            <div class="form-group">
+                <label>YouTube</label>
+                <input type="text" name="youtube" class="form-control" value="{{ old('youtube',$profil->youtube) }}" placeholder="channel_id">
             </div>
             <div class="form-group" style="grid-column:span 2">
                 <label>Alamat</label>

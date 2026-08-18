@@ -236,7 +236,10 @@ class AuthController extends Controller
         if (!$userId || !User::find($userId)) {
             return redirect()->route('register')->withErrors(['email' => 'Sesi tidak valid. Silakan daftar ulang.']);
         }
-        return view('auth.otp-verify', ['userId' => $userId]);
+        return view('auth.otp-verify', [
+            'userId'    => $userId,
+            'userEmail' => User::find($userId)?->email,
+        ]);
     }
 
     // ─────────────────────────────────────────
