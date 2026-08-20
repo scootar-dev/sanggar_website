@@ -5,7 +5,7 @@
 <div class="page-header">
     <div class="page-header-text">
         <h1>Koleksi Topeng</h1>
-        <p>Kelola koleksi topeng tradisional (Pancawanda) yang ditampilkan di website.</p>
+        <p>Kelola koleksi topeng tradisional (Panca Wanda) yang ditampilkan di website.</p>
     </div>
     <div class="page-header-actions">
         <a href="{{ route('admin.topeng.create') }}" class="btn btn-primary">+ Tambah Topeng</a>

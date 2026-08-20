@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Event & Workshop Mendatang')
+@section('title', 'Event & Pentas Mendatang')
 @section('content')
 
 {{-- HERO --}}
@@ -7,7 +7,7 @@
     <div class="page-hero__bg"></div>
     <div class="container page-hero__inner">
         <span class="badge">Aktivitas Kami</span>
-        <h1 class="page-hero__title">Event &amp; Workshop Mendatang</h1>
+        <h1 class="page-hero__title">Event &amp; Pentas Mendatang</h1>
         <p class="page-hero__sub">Ikuti berbagai kegiatan, kelas khusus, dan workshop seni yang diselenggarakan di Sanggar Mulya Bhakti.</p>
         <div class="page-hero__nav">
             <a href="#midhang_sore" class="phero-nav-link">Midhang Sore</a>

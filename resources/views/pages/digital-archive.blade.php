@@ -104,7 +104,7 @@
     <div class="container">
         <div class="section-header">
             <span class="badge">Koleksi Topeng</span>
-            <h2 class="section-heading">Topeng Tradisional (Pancawanda)</h2>
+            <h2 class="section-heading">Topeng Tradisional (Panca Wanda)</h2>
             <p class="section-sub">Mengenal karakter manusia melalui rupa dan warna topeng.</p>
         </div>
 
@@ -194,9 +194,17 @@ function openModal(type, id) {
     if (type === 'tarian') {
         t = tarianData[id];
         fotoHtml = t.foto
-            ? `<img src="${t.foto}" alt="${t.nama}" style="width:100%;height:260px;object-fit:cover;border-radius:var(--radius) var(--radius) 0 0">`
-            : `<div class="img-placeholder img-placeholder--modal"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#C65D2E" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
-        
+            ? `<div style="width:100%; height:340px; background:#f8f8f8; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:var(--radius) var(--radius) 0 0;">
+                    <img src="${t.foto}" 
+                        alt="${t.nama}"
+                        style="display:block; max-width:90%; max-height:300px; width:auto; height:auto; object-fit:contain; margin:0 auto;">
+                </div>`
+            : `<div class="img-placeholder img-placeholder--modal">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#C65D2E" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"/>
+                    </svg>
+                </div>`;
         const videoHtml = t.video
             ? `<div class="modal-video-wrap" style="margin-top:20px">
                    <h4 class="modal-section-title">🎬 Video Tarian</h4>

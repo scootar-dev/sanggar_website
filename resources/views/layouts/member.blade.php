@@ -395,7 +395,7 @@
         @if(Auth::user()->tipe_anggota !== 'pengunjung')
         <a href="{{ route('penjadwalan') }}" class="m-topbar-link">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Daftar Kelas
+            
         </a>
         @endif
         <button type="button" onclick="submitLogout()" class="m-topbar-link" style="background:#FEF2F2;color:#DC2626;border-color:rgba(220,38,38,.2)">

@@ -102,8 +102,8 @@
 <section class="topeng-section" style="padding: 80px 0; background: linear-gradient(to bottom, var(--white), var(--bg-soft)); overflow: hidden;">
     <div class="container">
         <div class="section-header" style="text-align: center; margin-bottom: 50px;">
-            <span class="badge">Koleksi Tradisional</span>
-            <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--dark); margin-top: 10px;">Pancawanda: 5 Karakter Topeng</h2>
+            <span class="badge">Koleksi Topeng</span>
+            <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--dark); margin-top: 10px;">Panca Wanda: 5 Karakter Topeng</h2>
             <p style="color: var(--muted); max-width: 600px; margin: 15px auto 0;">Mengenal lima watak manusia melalui warna dan rupa topeng tradisional Indramayu.</p>
         </div>
 
@@ -163,7 +163,6 @@
 {{-- DIGITAL ARCHIVE --}}
 <section class="archive-section" style="padding: 60px 0; overflow: hidden; background: var(--bg-soft);">
     <div class="container">
-        <span class="badge">Digital Archive</span>
         <div class="archive-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h2 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--dark);">Arsip Digital</h2>
             <a href="{{ route('digital-archive') }}" class="btn-lihat-sm">Lihat Semua →</a>
@@ -249,11 +248,10 @@
     <div class="container">
         <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px;">
             <div>
-                <span class="badge" style="margin-bottom:8px; display:inline-block;">Kegiatan Terbaru</span>
                 <h2 class="section-title" style="margin-bottom: 0; font-family: var(--font-display); font-weight: 700; color: var(--dark);">Dokumentasi Kegiatan</h2>
             </div>
             <a href="{{ route('galeri.frontend.index', 'dokumentasi') }}" class="btn-lihat-sm" style="display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 12px rgba(198,93,46,0.2);">
-                Lihat Semua Galeri
+                Lihat Semua
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </a>
         </div>
