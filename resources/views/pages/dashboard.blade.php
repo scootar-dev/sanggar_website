@@ -175,17 +175,16 @@
                         $jadwal = $p->jadwal;
                         $tarian = $p->tarian;
 
-                        $hari = $jadwal->hari ?? null;
+                        $hari = $jadwal?->hari;
 
-                        $jamMulai = $jadwal->jam_mulai
+                        $jamMulai = $jadwal?->jam_mulai
                             ?? $p->jam_latihan
                             ?? null;
 
-                        $jamSelesai = $jadwal->jam_selesai
+                        $jamSelesai = $jadwal?->jam_selesai
                             ?? null;
 
-                        $tempat = $jadwal->tempat
-                            ?? 'Jadwal belum ditentukan';
+                        $tempat = 'Sanggar Mulya Bhakti';
 
                         if ($hari) {
                             $hariTampil = strtoupper(
@@ -235,12 +234,12 @@
                                 </span>
                             </div>
 
-                            {{-- PERINGATAN JIKA JADWAL NULL --}}
-                            @if(!$jadwal)
-                                <div style="font-size:.7rem;color:#E65100;margin-top:5px;font-weight:600">
-                                    ⚠ Jadwal latihan belum ditentukan
-                                </div>
-                            @endif
+                        {{-- PERINGATAN JIKA JADWAL BENAR-BENAR BELUM TERSEDIA --}}
+                        @if(!$hari && !$jamMulai)
+                            <div style="font-size:.7rem;color:#E65100;margin-top:5px;font-weight:600">
+                                ⚠ Jadwal latihan belum ditentukan
+                            </div>
+                        @endif
                         </div>
 
                         {{-- ACTION --}}

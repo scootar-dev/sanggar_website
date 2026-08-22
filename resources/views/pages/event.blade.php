@@ -270,11 +270,10 @@
                     </div>
 
                     <div style="margin-bottom: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;">
-                        <strong style="color: #d97706; font-size: 0.85rem;">9. Tanggal Pelaksanaan</strong>
+                        <strong style="color: #d97706; font-size: 0.85rem;">*Note</strong>
                         <p style="margin: 0; font-size: 0.8rem; color: #92400e; margin-top: 5px;">Tanggal spesifik event akan ditentukan kemudian oleh pihak Sanggar Mulya Bhakti setelah proses diskusi dan kurasi selesai.</p>
                     </div>
-
-                    <button type="submit" class="btn-cta" style="width: 100%; border-radius: 8px; font-size: 1rem; background: #4338ca;">Kirim Pengajuan 🚀</button>
+                    <button type="submit" class="btn-cta" style="width:100%; border-radius:8px; font-size:1rem; background:#C65D2E; color:#fff;">Kirim Pengajuan 🚀</button>
                 </form>
             </div>
         </div>

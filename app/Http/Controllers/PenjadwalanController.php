@@ -82,7 +82,7 @@ class PenjadwalanController extends Controller
             'tanggal_latihan' => $tanggal,
             'jam_latihan'     => $jam,
             'status'          => 'aktif',
-            'tanggal_daftar'  => now()->toDateString(),
+            'tanggal_daftar'  => now(),
             'catatan'         => $request->catatan,
         ]);
 

@@ -201,7 +201,7 @@ Route::prefix('v1')->group(function () {
                 'tanggal_latihan' => $tanggal,
                 'jam_latihan'     => $jam,
                 'status'          => $status,
-                'tanggal_daftar'  => now()->toDateString(),
+                'tanggal_daftar'  => now(),
                 'catatan'         => $req->catatan,
             ]);
 

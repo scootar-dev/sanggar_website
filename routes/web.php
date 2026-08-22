@@ -62,6 +62,7 @@ Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request');
 
+
 // ── MEMBER (harus login) ──────────────────────────────────────
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard',                  [DashboardController::class,   'index'])->name('dashboard');
@@ -77,6 +78,14 @@ Route::middleware('auth')->group(function () {
     // Member Profile
     Route::get('/my-profile',                 [DashboardController::class, 'editProfile'])->name('member.profile');
     Route::post('/my-profile/update',         [DashboardController::class, 'updateProfile'])->name('member.profile.update');
+
+    // Change password for member
+    Route::post('/member/password', [DashboardController::class, 'updatePassword'])
+        ->name('member.password.update');
+
+    // Check password for member
+    Route::post('/member/password/check', [DashboardController::class, 'checkCurrentPassword'])
+        ->name('member.password.check');
 
     // Ujian Midhang Sore
     Route::post('/ujian/daftar',              [\App\Http\Controllers\UjianController::class, 'daftar'])->name('ujian.daftar');

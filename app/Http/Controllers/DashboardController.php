@@ -1,8 +1,15 @@
 <?php
-
 namespace App\Http\Controllers;
+use App\Models\{
+    PendaftaranTari,
+    Kehadiran,
+    Event,
+    Tarian,
+    User,
+    UjianPendaftaran,
+    RaporPagelaran
+};
 
-use App\Models\{PendaftaranTari, Kehadiran, Event, Tarian, User, UjianPendaftaran, RaporPagelaran};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -10,29 +17,24 @@ use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
-    // Tidak ada __construct middleware — sudah dihandle di routes/web.php
-
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD 
+    |--------------------------------------------------------------------------
+    */
     public function index()
     {
         $user = Auth::user();
+        if ($user->role === 'admin') {return redirect()->route('admin.dashboard');}
+        if ($user->tipe_anggota === 'pengunjung') {return $this->guestDashboard($user);}
 
-        // Admin diarahkan ke dashboard admin
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        }
-
-        // Jika anggota sementara (pengunjung)
-        if ($user->tipe_anggota === 'pengunjung') {
-            return $this->guestDashboard($user);
-        }
-
-        // Jadwal aktif saya (untuk anggota tetap)
+        /* ----- JADWAL AKTIF SAYA ----- */
         $jadwalAktif = PendaftaranTari::with(['tarian', 'jadwal'])
             ->where('user_id', $user->id)
             ->where('status', 'aktif')
             ->get();
 
-        // Kehadiran bulan ini
+        /* ----- KEHADIRAN BULAN INI ----- */
         $bulanIni = now()->format('Y-m');
         $kehadiranBulanIni = Kehadiran::where('user_id', $user->id)
             ->whereRaw("DATE_FORMAT(tanggal, '%Y-%m') = ?", [$bulanIni])
@@ -40,198 +42,258 @@ class DashboardController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status')
             ->toArray();
-
         $totalLatihan = array_sum($kehadiranBulanIni);
-        $hadir        = (int)($kehadiranBulanIni['hadir'] ?? 0);
-        $izin         = (int)($kehadiranBulanIni['izin']  ?? 0);
-        $alpa         = (int)($kehadiranBulanIni['alpa']  ?? 0);
-        $persenHadir  = $totalLatihan > 0 ? round($hadir / $totalLatihan * 100) : 0;
+        $hadir = (int) ($kehadiranBulanIni['hadir'] ?? 0);
+        $izin  = (int) ($kehadiranBulanIni['izin'] ?? 0);
+        $alpa  = (int) ($kehadiranBulanIni['alpa'] ?? 0);
+        $persenHadir = $totalLatihan > 0
+            ? round(($hadir / $totalLatihan) * 100)
+            : 0;
 
-        // Event mendatang
+        /* ----- EVENT MENDATANG ----- */
         $eventMendatang = Event::where('status', 'akan_datang')
-            ->orderBy('tanggal')->limit(3)->get();
+            ->orderBy('tanggal')
+            ->limit(3)
+            ->get();
 
-        // Rekomendasi tarian (yang belum didaftar)
+        /* ----- REKOMENDASI TARIAN ----- */
         $tarianRekomendasi = Tarian::where('aktif', true)
-            ->whereNotIn('id', $jadwalAktif->pluck('tarian_id'))
-            ->orderBy('urutan')->limit(4)->get();
+            ->whereNotIn('id',$jadwalAktif->pluck('tarian_id'))
+            ->orderBy('urutan')
+            ->limit(4)
+            ->get();
 
-        // Absensi terakhir 5 sesi
+        /* ----- ABSENSI TERAKHIR ----- */
         $absensiTerakhir = Kehadiran::with(['jadwal', 'tarian'])
             ->where('user_id', $user->id)
-            ->orderByDesc('tanggal')->limit(5)->get();
+            ->orderByDesc('tanggal')
+            ->limit(5)
+            ->get();
 
-        // Total kehadiran sepanjang waktu
+        /* ----- TOTAL KEHADIRAN SEPANJANG WAKTU ----- */
         $totalKehadiranAll = Kehadiran::where('user_id', $user->id)->count();
-        $totalHadirAll     = Kehadiran::where('user_id', $user->id)->where('status', 'hadir')->count();
+        $totalHadirAll = Kehadiran::where('user_id', $user->id)
+            ->where('status', 'hadir')
+            ->count();
 
-        // Ujian Midhang Sore saya (untuk anggota tetap)
+        /* ----- UJIAN MIDHANG SORE ----- */
         $ujianSaya = UjianPendaftaran::with(['event', 'tarian'])
             ->where('user_id', $user->id)
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($item) use ($user) {
-                $item->rapor = RaporPagelaran::where([
-                    'event_id'  => $item->event_id,
-                    'user_id'   => $user->id,
-                    'tarian_id' => $item->tarian_id,
-                ])->first();
-                return $item;
-            });
+                $item->rapor = RaporPagelaran::where(['event_id'  => $item->event_id, 'user_id'   => $user->id, 'tarian_id' => $item->tarian_id,])->first();return $item;});
 
-        return view('pages.dashboard', compact(
-            'user', 'jadwalAktif', 'kehadiranBulanIni',
-            'totalLatihan', 'hadir', 'izin', 'alpa', 'persenHadir',
-            'eventMendatang', 'tarianRekomendasi', 'absensiTerakhir',
-            'totalKehadiranAll', 'totalHadirAll', 'ujianSaya'
-        ));
+        return view('pages.dashboard', compact('user','jadwalAktif','kehadiranBulanIni','totalLatihan','hadir','izin','alpa','persenHadir','eventMendatang','tarianRekomendasi','absensiTerakhir','totalKehadiranAll','totalHadirAll','ujianSaya'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD ANGGOTA SEMENTARA
+    |--------------------------------------------------------------------------
+    */
     private function guestDashboard($user)
     {
-        // Semua sesi pendaftaran (termasuk yang pending)
+        // Semua sesi pendaftaran
         $sesiBooking = PendaftaranTari::with('tarian')
             ->where('user_id', $user->id)
             ->orderBy('tanggal_latihan', 'asc')
             ->get();
 
-        // Hitung statistik
+        // Statistik
         $totalSesiBooking = $sesiBooking->count();
-        $totalHadir       = Kehadiran::where('user_id', $user->id)->where('status', 'hadir')->count();
-        $persenHadir      = $totalSesiBooking > 0 ? round(($totalHadir / $totalSesiBooking) * 100) : 0;
+        $totalHadir = Kehadiran::where('user_id', $user->id)
+            ->where('status', 'hadir')
+            ->count();
+        $persenHadir = $totalSesiBooking > 0
+            ? round(($totalHadir / $totalSesiBooking) * 100)
+            : 0;
 
         // Event mendatang
-        $eventMendatang = Event::where('status', 'akan_datang')->orderBy('tanggal')->limit(3)->get();
+        $eventMendatang = Event::where('status', 'akan_datang')
+            ->orderBy('tanggal')
+            ->limit(3)
+            ->get();
 
-        // Daftar tarian aktif untuk form tambah sesi
-        $tarianList = Tarian::where('aktif', true)->orderBy('urutan')->get();
+        // Tarian aktif
+        $tarianList = Tarian::where('aktif', true)
+            ->orderBy('urutan')
+            ->get();
 
-        return view('pages.guest_dashboard', compact(
-            'user', 'sesiBooking', 'totalSesiBooking', 'totalHadir', 'persenHadir',
-            'eventMendatang', 'tarianList'
-        ));
+        return view('pages.guest_dashboard', compact('user','sesiBooking','totalSesiBooking','totalHadir','persenHadir','eventMendatang','tarianList'));
     }
 
-    // ─────────────────────────────────────────
-    //  TAMBAH SESI BARU (Anggota Sementara)
-    // ─────────────────────────────────────────
+    /* ----- TAMBAH SESI BARU - ANGGOTA SEMENTARA ----- */
     public function storeSesi(Request $request)
     {
         $user = Auth::user();
-
-        if ($user->tipe_anggota !== 'pengunjung') {
-            return redirect()->route('dashboard');
-        }
-
-        $request->validate([
-            'tarian_id' => 'required|exists:tarian,id',
+        if ($user->tipe_anggota !== 'pengunjung') {return redirect()->route('dashboard');}
+        $request->validate(['tarian_id' => 'required|exists:tarian,id',
             'tanggal'   => 'required|date|after_or_equal:today',
-            'jam'       => 'required|string',
-        ], [
+            'jam'       => 'required|string'], 
+        [
             'tarian_id.required' => 'Harap pilih tarian.',
             'tanggal.required'   => 'Harap pilih tanggal.',
             'tanggal.after_or_equal' => 'Tanggal tidak boleh di masa lalu.',
-            'jam.required'       => 'Harap pilih jam latihan.',
-        ]);
+            'jam.required'       => 'Harap pilih jam latihan.']);
 
         $requestedTarianId = $request->tarian_id;
 
-        // 1. Dapatkan daftar pendaftaran aktif/pending di jam tersebut
+        /* ----- DAFTAR PENDAFTARAN PADA JAM YANG SAMA ----- */
         $existingPendaftaran = PendaftaranTari::with('tarian')
             ->where('tanggal_latihan', $request->tanggal)
             ->where('jam_latihan', $request->jam)
             ->whereIn('status', ['aktif', 'pending'])
             ->get();
 
-        // 2. Hitung jumlah jenis tarian yang unik (Maksimal 2 tempat)
-        $uniqueTarianIds = $existingPendaftaran->pluck('tarian_id')->unique()->values()->toArray();
-        
-        // 3. Cek kapasitas tempat/ruangan
+        /* ----- MAKSIMAL 2 JENIS TARIAN DALAM SATU JAM ----- */
+        $uniqueTarianIds = $existingPendaftaran
+            ->pluck('tarian_id')
+            ->unique()
+            ->values()
+            ->toArray();
         if (!in_array($requestedTarianId, $uniqueTarianIds)) {
             if (count($uniqueTarianIds) >= 2) {
-                $namaTarian = $existingPendaftaran->pluck('tarian.nama')->unique()->implode(' dan ');
-                return back()->with('error', "Maaf, seluruh tempat latihan pada {$request->tanggal} jam {$request->jam} sudah penuh oleh kelas {$namaTarian}. Silakan pilih jam lain, atau pilih salah satu tarian tersebut jika ingin bergabung.");
-            }
+                $namaTarian = $existingPendaftaran
+                    ->pluck('tarian.nama')
+                    ->unique()
+                    ->implode(' dan ');
+                return back()->with('error',
+                    "Maaf, seluruh tempat latihan pada {$request->tanggal} jam {$request->jam} sudah penuh oleh kelas {$namaTarian}. Silakan pilih jam lain, atau pilih salah satu tarian tersebut jika ingin bergabung.");}
         }
 
-        // 4. Cek kapasitas orang dalam kelompok tarian yang dipilih (Maksimal 5 orang)
-        $countOrangDiTarian = $existingPendaftaran->where('tarian_id', $requestedTarianId)->count();
+        /* ----- MAKSIMAL 5 ORANG DALAM SATU KELOMPOK ----- */
+        $countOrangDiTarian = $existingPendaftaran
+            ->where('tarian_id', $requestedTarianId)
+            ->count();
         if ($countOrangDiTarian >= 5) {
-            return back()->with('error', "Maaf, kelompok tari yang Anda pilih pada {$request->tanggal} jam {$request->jam} sudah mencapai batas maksimal (5 orang). Silakan pilih jam lain.");
+            return back()->with('error',
+                "Maaf, kelompok tari yang Anda pilih pada {$request->tanggal} jam {$request->jam} sudah mencapai batas maksimal (5 orang). Silakan pilih jam lain.");
         }
 
-        // Update kadaluarsa jika sesi baru lebih jauh
-        $tglBaru = \Carbon\Carbon::parse($request->tanggal)->addDays(3)->toDateString();
+        /* ----- UPDATE TANGGAL KADALUARSA ----- */
+        $tglBaru = \Carbon\Carbon::parse($request->tanggal)
+            ->addDays(3)
+            ->toDateString();
         if (is_null($user->tgl_kadaluarsa) || $tglBaru > $user->tgl_kadaluarsa) {
-            User::where('id', $user->id)->update(['tgl_kadaluarsa' => $tglBaru]);
+            User::where('id', $user->id)
+                ->update(['tgl_kadaluarsa' => $tglBaru]);
         }
 
+        /* ----- SIMPAN PENDAFTARAN ----- */
         PendaftaranTari::create([
             'user_id'         => $user->id,
             'tarian_id'       => $request->tarian_id,
             'tanggal_latihan' => $request->tanggal,
             'jam_latihan'     => $request->jam,
             'status'          => 'pending',
-            'tanggal_daftar'  => now()->toDateString(),
-            'catatan'         => null,
-        ]);
-
-        return back()->with('success', 'Sesi latihan baru berhasil diajukan! Menunggu konfirmasi admin.');
+            'tanggal_daftar'  => now(),
+            'catatan'         => null]);
+        return back()->with('success',
+            'Sesi latihan baru berhasil diajukan! Menunggu konfirmasi admin.');
     }
 
-
+    /* ----- HALAMAN PROFIL ----- */
     public function editProfile()
     {
         $user = Auth::user();
-
         // Admin diarahkan ke dashboard admin
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
+        if ($user->role === 'admin') { return redirect()->route('admin.dashboard'); }
+        // Anggota sementara tidak dapat mengedit profil
+        if ($user->tipe_anggota === 'pengunjung') {return redirect()
+                ->route('dashboard')
+                ->with('error','Anggota sementara tidak memerlukan pengaturan profil.');
         }
 
-        // Anggota sementara tidak diizinkan edit profil (permintaan user)
-        if ($user->tipe_anggota === 'pengunjung') {
-            return redirect()->route('dashboard')->with('error', 'Anggota sementara tidak memerlukan pengaturan profil.');
-        }
-
-        $riwayatTarian = PendaftaranTari::with(['tarian', 'jadwal'])
+        /* ----- RIWAYAT TARIAN ----- */
+        $riwayatTarian = PendaftaranTari::with(['tarian','jadwal'])->where('user_id', $user->id)->orderByDesc('tanggal_daftar')->get();
+        $riwayatTarian = PendaftaranTari::with(['tarian','jadwal'])
             ->where('user_id', $user->id)
             ->orderByDesc('tanggal_daftar')
             ->get();
-
-        return view('pages.member_profile', compact('user', 'riwayatTarian'));
+        return view('pages.member_profile', compact('user','riwayatTarian'));
     }
 
+    /* ----- UPDATE PROFIL ------ */
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|max:255|unique:users,email,' . $user->id,
-            'no_hp'    => 'nullable|string|max:20',
-            'alamat'   => 'nullable|string|max:500',
-            'foto'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'password' => 'nullable|string|min:8|confirmed',
+        $validated = $request->validate([
+            'name' => ['required','string','max:255'],
+            'email' => ['required','email','max:255','unique:users,email,' . $user->id],
+            'no_hp' => ['nullable','string','max:20'],
+            'alamat' => ['nullable','string','max:500'],
+            'foto' => ['nullable','image','mimes:jpg,jpeg,png,webp','max:2048']],
+            [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email tersebut sudah digunakan.',
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Foto harus berformat JPG, JPEG, PNG, atau WEBP.',
+            'foto.max' => 'Ukuran foto maksimal 2 MB.',
         ]);
 
-        $data = $request->only(['name', 'email', 'no_hp', 'alamat']);
+        /* ------ DATA PROFIL ------ */
+        $data = [
+            'name'   => $validated['name'],
+            'email'  => $validated['email'],
+            'no_hp'  => $validated['no_hp'] ?? null,
+            'alamat' => $validated['alamat'] ?? null,
+        ];
 
+        /* ------ UPLOAD FOTO ------ */
         if ($request->hasFile('foto')) {
-            // Hapus foto lama jika ada
-            if ($user->foto && Storage::disk('public')->exists($user->foto)) {
-                Storage::disk('public')->delete($user->foto);
-            }
-            $data['foto'] = $request->file('foto')->store('profil_anggota', 'public');
+            // Hapus foto lama
+            if ($user->foto && Storage::disk('public')->exists($user->foto)) {Storage::disk('public')->delete($user->foto);}
+            // Simpan foto baru
+            $data['foto'] = $request
+                ->file('foto')
+                ->store('profil_anggota', 'public');
         }
 
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
-        }
-
-        // Gunakan model binding atau instance dari DB untuk memastikan update berhasil
+        /* ------ UPDATE DATABASE ------ */
         User::where('id', $user->id)->update($data);
+        return back()->with('success','Profil berhasil diperbarui!');
+    }
 
-        return back()->with('success', 'Profil berhasil diperbarui!');
+    /* ------ CEK PASSWORD SAAT INI ------ */
+    public function checkCurrentPassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required','string']]);
+        $user = Auth::user();
+        $isValid = Hash::check($request->current_password,$user->password);
+        return response()->json([
+            'valid' => $isValid,
+            'message' => $isValid
+                ? 'Kata sandi benar'
+                : 'Kata sandi salah']);
+    }
+
+    /* ------ UPDATE PASSWORD ------ */
+
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+        $validated = $request->validate([
+            'current_password' => ['required','string'],
+            'password' => ['required','string','min:8','confirmed','different:current_password']],
+            [
+            'current_password.required' => 'Kata sandi saat ini wajib diisi.',
+            'password.required' => 'Kata sandi baru wajib diisi.',
+            'password.min' => 'Kata sandi baru minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'password.different' => 'Kata sandi baru harus berbeda dari kata sandi saat ini.',
+        ]);
+
+        /* ------ CEK PASSWORD LAMA ------ */
+        if (!Hash::check($validated['current_password'],$user->password)) {
+            return back()->withErrors(['current_password' => 'Kata sandi salah'], 'password')->withInput();
+        }
+
+        /* ------ SIMPAN PASSWORD BARU ------ */
+        User::where('id', $user->id)->update(['password' => Hash::make($validated['password'])]);   
+        return back()->with('password_success','Kata sandi berhasil diubah!');
     }
 }

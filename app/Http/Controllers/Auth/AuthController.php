@@ -207,7 +207,7 @@ class AuthController extends Controller
                     'tanggal_latihan' => $tanggal,
                     'jam_latihan'     => $jam,
                     'status'          => 'pending',
-                    'tanggal_daftar'  => now()->toDateString(),
+                    'tanggal_daftar'  => now(),
                     'catatan'         => null,
                 ]);
             }
