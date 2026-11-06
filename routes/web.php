@@ -10,6 +10,7 @@ use App\Http\Controllers\{
     PenjadwalanController,
     AttendanceController,
     ChatbotController,
+    TestCodeController,
 };
 use App\Http\Controllers\Api\GeminiController;
 use App\Http\Controllers\Auth\AuthController;
@@ -36,6 +37,12 @@ Route::post('/event/daftar',  [EventController::class,          'daftar'])->name
 Route::get('/event/tiket/{order_id}', [EventController::class,  'tiketPdf'])->name('event.tiket');
 Route::get('/digital-archive',[DigitalArchiveController::class, 'index'])->name('digital-archive');
 Route::get('/galeri/{seksi?}', [App\Http\Controllers\GaleriController::class, 'frontendIndex'])->name('galeri.frontend.index');
+
+// Test Code Routes
+Route::get('/test-code',             [TestCodeController::class, 'index'])->name('test-code');
+Route::post('/test-code',            [TestCodeController::class, 'store'])->name('test-code.store');
+Route::put('/test-code/{id}',        [TestCodeController::class, 'update'])->name('test-code.update');
+Route::delete('/test-code/{id}',     [TestCodeController::class, 'destroy'])->name('test-code.destroy');
 
 // ── TAMU (Public Guest Log) ──────────────────────────────────
 Route::get('/tamu',           [\App\Http\Controllers\TamuController::class, 'index'])->name('tamu.index');

@@ -57,6 +57,7 @@
                 <li><a href="{{ route('profile') }}"        class="{{ request()->routeIs('profile')         ? 'active' : '' }}">Profil</a></li>
                 <li><a href="{{ route('event') }}"          class="{{ request()->routeIs('event')           ? 'active' : '' }}">Event</a></li>
                 <li><a href="{{ route('digital-archive') }}" class="{{ request()->routeIs('digital-archive') ? 'active' : '' }}">Arsip Digital</a></li>
+                <li><a href="{{ route('test-code') }}"       class="{{ request()->routeIs('test-code')       ? 'active' : '' }}">Test Code</a></li>
             </ul>
 
             <div class="navbar-actions">
@@ -135,6 +136,7 @@
             <li><a href="{{ route('profile') }}">Profil</a></li>
             <li><a href="{{ route('event') }}">Event</a></li>
             <li><a href="{{ route('digital-archive') }}">Arsip Digital</a></li>
+            <li><a href="{{ route('test-code') }}">Test Code</a></li>
             @auth
             @if(Auth::user()->role !== 'admin')
             <li><a href="{{ route('dashboard') }}">Dashboard Saya</a></li>

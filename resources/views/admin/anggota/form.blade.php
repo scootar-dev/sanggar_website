@@ -52,7 +52,7 @@
                 <div class="form-group" style="margin-bottom:16px">
                     <label>Nomor Induk Siswa (NIS)</label>
                     <input type="text" class="form-control" value="{{ $anggota->nomor_induk }}" readonly style="background: #F3F4F6; color: #111827; font-weight: 700; letter-spacing: 1px;">
-                    <p style="font-size:.75rem;color:var(--muted);margin-top:4px">Di-generate otomatis oleh sistem (YYMMDDXXX).</p>
+                    
                 </div>
                 @endif
 
