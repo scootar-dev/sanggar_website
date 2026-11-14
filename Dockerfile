@@ -17,7 +17,6 @@ RUN apk add --no-cache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
     pdo_mysql \
-    mbstring \
     exif \
     pcntl \
     bcmath \
@@ -30,11 +29,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy source code
+# 1. Copy composer definitions first for layer caching
+COPY composer.json composer.lock ./
+
+# 2. Install PHP dependencies (production only, cached unless dependencies change)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+
+# 3. Copy application source code
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev
+# 4. Generate final autoloader
+RUN composer dump-autoload --optimize
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
