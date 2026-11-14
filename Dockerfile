@@ -1,23 +1,21 @@
-# Dockerfile
 FROM php:8.2-fpm-alpine
 
-# Install dependencies sistem
+# Install system dependencies & PHP extensions
 RUN apk add --no-cache \
     nginx \
-    nodejs \
-    npm \
     curl \
     zip \
     unzip \
     git \
-    supervisor \
+    bash \
     libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
     libzip-dev \
     oniguruma-dev \
-    libxml2-dev
-
-# Install ekstensi PHP
-RUN docker-php-ext-install \
+    libxml2-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
     pdo_mysql \
     mbstring \
     exif \
@@ -32,23 +30,20 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy file project
+# Copy source code
 COPY . .
 
-# Install dependencies Laravel
+# Install PHP dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Create storage symbolic link
-RUN rm -rf public/storage && php artisan storage:link
-
-# Set permission
+# Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Copy konfigurasi Nginx, PHP, dan Supervisor
-COPY docker/nginx.conf /etc/nginx/nginx.conf
-COPY docker/local.ini /usr/local/etc/php/conf.d/local.ini
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy Nginx & PHP config
+COPY ./docker/nginx.conf /etc/nginx/nginx.conf
+COPY ./docker/local.ini /usr/local/etc/php/conf.d/local.ini
 
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Run PHP-FPM and Nginx together
+CMD php-fpm -D && nginx -g 'daemon off;'
