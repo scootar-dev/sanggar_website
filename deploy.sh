@@ -56,15 +56,19 @@ docker exec -t sanggar-web php artisan storage:link || true
 echo "🗄️ 6. Running database migrations inside the container..."
 docker exec -t sanggar-web php artisan migrate --force
 
-# 7. Clear and optimize Laravel caches
-echo "🧹 7. Optimizing and clearing Laravel caches inside the container..."
+# 7. Ensure default seeds (idempotent)
+echo "🌱 7. Ensuring default seeds..."
+docker exec -t sanggar-web php artisan db:seed --force || true
+
+# 8. Clear and optimize Laravel caches
+echo "🧹 8. Optimizing and clearing Laravel caches inside the container..."
 docker exec -t sanggar-web php artisan optimize:clear
 docker exec -t sanggar-web php artisan config:cache
 docker exec -t sanggar-web php artisan route:cache
 docker exec -t sanggar-web php artisan view:cache
 
-# 8. Clean dangling images to save disk space
-echo "🧼 8. Cleaning dangling images..."
+# 9. Clean dangling images to save disk space
+echo "🧼 9. Cleaning dangling images..."
 docker image prune -f || true
 
 echo "🎉 Auto-Deployment completed successfully for Sanggar Mulya Bhakti! Container is running on port 8087."
