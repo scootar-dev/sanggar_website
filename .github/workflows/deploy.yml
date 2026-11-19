@@ -15,14 +15,34 @@ jobs:
 
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 22
+          envs: DEPLOY_PATH
           script: |
-            git config --global --add safe.directory /home/miomideveloper/sanggar-web
-            cd /home/miomideveloper/sanggar-web
+            set -eu
+            if [ -z "${DEPLOY_PATH:-}" ]; then
+              echo "ERROR: Set repository variable DEPLOY_PATH to the absolute project directory on the SSH server."
+              exit 1
+            fi
+            case "$DEPLOY_PATH" in
+              /*) ;;
+              *) echo "ERROR: DEPLOY_PATH must be an absolute path."; exit 1 ;;
+            esac
+            if [ ! -d "$DEPLOY_PATH" ]; then
+              echo "ERROR: DEPLOY_PATH directory does not exist on the SSH server."
+              exit 1
+            fi
+            cd "$DEPLOY_PATH"
+            if [ ! -e .git ]; then
+              echo "ERROR: DEPLOY_PATH must point to the repository root."
+              exit 1
+            fi
+            git rev-parse --is-inside-work-tree
             git fetch --all
             git reset --hard origin/miomidev
             chmod +x deploy.sh
