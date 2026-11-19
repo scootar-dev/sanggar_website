@@ -1,0 +1,28 @@
+# Production security checklist
+
+- [x] Local regression suite and frontend build run.
+- [x] AI TLS peer and hostname verification enabled.
+- [x] Chat history namespace scoped to owner.
+- [x] Registration/AI request throttling added.
+- [x] ZIP restore entry preflight added.
+- [x] Docker build context excludes local secrets and backup files.
+- [x] Compatible npm audit fixes applied.
+- [ ] Reconcile composer.json/lock with installed Filament/Livewire before removing or updating packages.
+- [ ] Apply compatible Composer security updates and re-audit installed AND locked sets.
+- [ ] Run full secret scan including Git history; rotate only confirmed exposed credentials through approved process.
+- [ ] Confirm APP_ENV=production, APP_DEBUG=false, HTTPS APP_URL, Secure/HttpOnly/SameSite cookies.
+- [ ] Restrict trusted proxy/hosts to actual topology; prevent direct access to origin port.
+- [ ] Validate Nginx configuration and deny script execution in upload paths on every hosting variant.
+- [ ] Review CORS allowlist and Sanctum token expiry/revocation.
+- [x] Add targeted CSRF enforcement, executable upload rejection and announcement output-encoding tests.
+- [ ] Expand DOM XSS and ownership regression coverage to remaining endpoints.
+- [ ] Review all innerHTML/raw Blade/embed URLs and introduce nonce-based CSP after staging compatibility tests.
+- [ ] Move transfer proofs to authenticated private storage with migration plan for existing files.
+- [ ] Add MFA or approved step-up authentication for admin backup/restore and role changes.
+- [ ] Sign/verify backups, restrict Drive folder scope, protect SQL restore, test recovery on isolated database.
+- [ ] Configure least-privilege filesystem/database permissions; replace deployment chmod 777 safely.
+- [ ] Review outbound HTTP/Dompdf policy; block metadata/internal destinations at egress where appropriate.
+- [ ] Ensure CA certificates installed; test AI/OAuth/SMTP/Drive/FCM/payment services in staging.
+- [ ] Configure security log retention, restricted access and alerts for failed logins, throttling, admin actions, restore failures.
+- [ ] Independently review all OWASP ASVS requirements needed for target assurance level.
+- [ ] Obtain release approval after residual HIGH/CRITICAL findings are closed or explicitly accepted.

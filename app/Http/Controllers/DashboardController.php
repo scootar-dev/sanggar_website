@@ -101,8 +101,11 @@ class DashboardController extends Controller
             ->get();
 
         // Statistik
-        $totalSesiBooking = $sesiBooking->count();
+        $sesiDihitung = $sesiBooking->where('status', 'aktif')->filter(fn ($sesi) =>
+            $sesi->tanggal_latihan && \Carbon\Carbon::parse($sesi->tanggal_latihan->toDateString().' '.$sesi->jam_latihan)->lte(now()));
+        $totalSesiBooking = $sesiDihitung->count();
         $totalHadir = Kehadiran::where('user_id', $user->id)
+            ->whereIn('pendaftaran_tari_id', $sesiDihitung->pluck('id'))
             ->where('status', 'hadir')
             ->count();
         $persenHadir = $totalSesiBooking > 0
@@ -137,57 +140,10 @@ class DashboardController extends Controller
             'tanggal.after_or_equal' => 'Tanggal tidak boleh di masa lalu.',
             'jam.required'       => 'Harap pilih jam latihan.']);
 
-        $requestedTarianId = $request->tarian_id;
-
-        /* ----- DAFTAR PENDAFTARAN PADA JAM YANG SAMA ----- */
-        $existingPendaftaran = PendaftaranTari::with('tarian')
-            ->where('tanggal_latihan', $request->tanggal)
-            ->where('jam_latihan', $request->jam)
-            ->whereIn('status', ['aktif', 'pending'])
-            ->get();
-
-        /* ----- MAKSIMAL 2 JENIS TARIAN DALAM SATU JAM ----- */
-        $uniqueTarianIds = $existingPendaftaran
-            ->pluck('tarian_id')
-            ->unique()
-            ->values()
-            ->toArray();
-        if (!in_array($requestedTarianId, $uniqueTarianIds)) {
-            if (count($uniqueTarianIds) >= 2) {
-                $namaTarian = $existingPendaftaran
-                    ->pluck('tarian.nama')
-                    ->unique()
-                    ->implode(' dan ');
-                return back()->with('error',
-                    "Maaf, seluruh tempat latihan pada {$request->tanggal} jam {$request->jam} sudah penuh oleh kelas {$namaTarian}. Silakan pilih jam lain, atau pilih salah satu tarian tersebut jika ingin bergabung.");}
-        }
-
-        /* ----- MAKSIMAL 5 ORANG DALAM SATU KELOMPOK ----- */
-        $countOrangDiTarian = $existingPendaftaran
-            ->where('tarian_id', $requestedTarianId)
-            ->count();
-        if ($countOrangDiTarian >= 5) {
-            return back()->with('error',
-                "Maaf, kelompok tari yang Anda pilih pada {$request->tanggal} jam {$request->jam} sudah mencapai batas maksimal (5 orang). Silakan pilih jam lain.");
-        }
-
-        /* ----- UPDATE TANGGAL KADALUARSA ----- */
-        $tglBaru = \Carbon\Carbon::parse($request->tanggal)
-            ->addDays(3)
-            ->toDateString();
-        if (is_null($user->tgl_kadaluarsa) || $tglBaru > $user->tgl_kadaluarsa) {
-            User::where('id', $user->id)
-                ->update(['tgl_kadaluarsa' => $tglBaru]);
-        }
-
-        /* ----- SIMPAN PENDAFTARAN ----- */
-        PendaftaranTari::create([
-            'user_id'         => $user->id,
+        app(\App\Services\BookingService::class)->book($user, [
             'tarian_id'       => $request->tarian_id,
             'tanggal_latihan' => $request->tanggal,
             'jam_latihan'     => $request->jam,
-            'status'          => 'pending',
-            'tanggal_daftar'  => now(),
             'catatan'         => null]);
         return back()->with('success',
             'Sesi latihan baru berhasil diajukan! Menunggu konfirmasi admin.');
@@ -253,7 +209,17 @@ class DashboardController extends Controller
         }
 
         /* ------ UPDATE DATABASE ------ */
+        $emailChanged = $user->email !== $data['email'];
         User::where('id', $user->id)->update($data);
+        if ($emailChanged) {
+            $sent = app(\App\Services\EmailVerificationService::class)->changed($user->fresh());
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('otp.verify.form', ['user_id' => $user->id])->with('info', $sent
+                ? 'Verifikasi email baru Anda dengan OTP yang telah dikirim.'
+                : 'Email diperbarui, tetapi OTP gagal dikirim. Silakan gunakan Kirim Ulang OTP.');
+        }
         return back()->with('success','Profil berhasil diperbarui!');
     }
 

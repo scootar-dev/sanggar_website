@@ -54,8 +54,9 @@ class EventController extends Controller {
         ]);
 
         $event = Event::findOrFail($request->event_id);
+        abort_unless($event->status === 'akan_datang' && $event->tanggal->endOfDay()->isFuture(), 422, 'Pendaftaran event sudah ditutup.');
         
-        $validated['order_id'] = 'EVT-' . time() . '-' . rand(100, 999);
+        $validated['order_id'] = 'EVT-' . \Illuminate\Support\Str::uuid();
         
         if ($request->hasFile('bukti_transfer')) {
             $validated['bukti_transfer'] = $request->file('bukti_transfer')->store('bukti_transfer', 'public');
@@ -66,18 +67,27 @@ class EventController extends Controller {
 
         \App\Models\PesertaEvent::create($validated);
 
-        return back()->with('success', 'Pendaftaran berhasil dikirim! E-Tiket atau konfirmasi selanjutnya akan dikirim ke WhatsApp Anda oleh Admin setelah dicek.');
+        return back()->with('success', 'Pendaftaran berhasil. Simpan tautan tiket; tiket berbayar dapat diunduh setelah pembayaran diverifikasi admin.')
+            ->with('ticket_url', route('event.tiket', $validated['order_id']));
     }
 
     public function midtransWebhook(\Illuminate\Http\Request $request) {
+        $request->validate([
+            'order_id' => 'required|string',
+            'status_code' => 'required|string',
+            'gross_amount' => 'required|string',
+            'signature_key' => 'required|string',
+            'transaction_status' => 'required|string',
+        ]);
         $serverKey = config('midtrans.server_key');
+        abort_unless(is_string($serverKey) && $serverKey !== '', 503);
         $hashed = hash("sha512", $request->order_id.$request->status_code.$request->gross_amount.$serverKey);
         
-        if ($hashed == $request->signature_key) {
+        if (hash_equals($hashed, $request->signature_key)) {
             $peserta = \App\Models\PesertaEvent::where('order_id', $request->order_id)->first();
             
             if ($peserta) {
-                if ($request->transaction_status == 'capture' || $request->transaction_status == 'settlement') {
+                if (($request->transaction_status === 'capture' && $request->fraud_status === 'accept') || $request->transaction_status === 'settlement') {
                     $peserta->update(['status_pembayaran' => 'lunas']);
                     // Kirim WA Otomatis
                 } elseif ($request->transaction_status == 'cancel' || $request->transaction_status == 'deny' || $request->transaction_status == 'expire') {

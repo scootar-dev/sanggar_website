@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+node_modules
+vendor
+storage/logs/*
+storage/framework/*
+storage/app/backups
+storage/app/firebase-service-account.json
+public/hot
+tests

@@ -19,10 +19,12 @@
                 </div>
                 @endif
 
-                <p style="font-size:.875rem;color:var(--muted);margin-bottom:20px;line-height:1.6">
-                    Fitur kirim email reset password memerlukan konfigurasi SMTP di file <code>.env</code>.
-                    Untuk sementara, minta admin untuk reset password secara manual melalui panel admin.
-                </p>
+                <form method="POST" action="{{ route('password.email') }}" style="margin-bottom:20px">
+                    @csrf
+                    <label for="email">Email terdaftar</label>
+                    <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email" class="form-control" style="width:100%;margin:10px 0;padding:12px">
+                    <button type="submit" class="btn btn-primary">Kirim link reset password</button>
+                </form>
 
                 <a href="{{ route('login') }}"
                    style="display:block;text-align:center;background:var(--primary);color:#fff;font-weight:700;padding:12px;border-radius:50px;text-decoration:none;font-size:.9rem">

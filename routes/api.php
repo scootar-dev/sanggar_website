@@ -27,8 +27,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/tarian',      [TarianApiController::class,  'index']);
     Route::get('/tarian/{id}', [TarianApiController::class,  'show']);
     Route::get('/galeri',      [GaleriApiController::class,  'index']);
-    Route::post('/ai/chat', [GeminiController::class, 'chat']);
-    Route::post('/ai/recommend', [GeminiController::class, 'recommendDance']);
+    Route::post('/ai/chat', [GeminiController::class, 'chat'])->middleware('throttle:20,1');
+    Route::post('/ai/recommend', [GeminiController::class, 'recommendDance'])->middleware('throttle:10,1');
     Route::get('/archive', [ArchiveApiController::class, 'index']);
     Route::get('/topeng', [TopengApiController::class, 'index']);
     Route::get('/topeng/{id}', [TopengApiController::class, 'show']);
@@ -39,17 +39,13 @@ Route::prefix('v1')->group(function () {
         return response()->json(['data' => $data]);
     });
 
-    Route::get('/file/{path}', function ($path) {
-        $fullPath = storage_path('app/public/' . $path);
-        if (!file_exists($fullPath)) abort(404);
-        return response()->file($fullPath);
-    })->where('path', '.*');
+    Route::get('/file/{path}', [\App\Http\Controllers\PublicFileController::class, 'show'])->where('path', '.*');
 
     // ── AUTH ──────────────────────────────────────────────────
-    Route::post('/auth/login',    [AuthApiController::class, 'login']);
-    Route::post('/auth/register', [AuthApiController::class, 'register']);
-    Route::post('/auth/verify-otp', [AuthApiController::class, 'verifyOtp']);
-    Route::post('/auth/resend-otp', [AuthApiController::class, 'resendOtp']);
+    Route::post('/auth/login',    [AuthApiController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/auth/register', [AuthApiController::class, 'register'])->middleware('throttle:5,1');
+    Route::post('/auth/verify-otp', [AuthApiController::class, 'verifyOtp'])->middleware('throttle:5,1');
+    Route::post('/auth/resend-otp', [AuthApiController::class, 'resendOtp'])->middleware('throttle:1,1');
     Route::post('/auth/google',   [AuthApiController::class, 'loginWithGoogle']); // Google Sign-In (Firebase)
 
     // ── PROTECTED ─────────────────────────────────────────────
@@ -133,90 +129,7 @@ Route::prefix('v1')->group(function () {
             return response()->json(['data' => $data]);
         });
 
-        Route::post('/pendaftaran', function (Illuminate\Http\Request $req) {
-            $user = $req->user();
-
-            // Semua tipe anggota menggunakan tanggal_latihan dan jam_latihan
-            $req->validate([
-                'tarian_id'       => 'required|exists:tarian,id',
-                'tanggal_latihan' => 'required|date|after_or_equal:today',
-                'jam_latihan'     => 'required|string',
-                'catatan'         => 'nullable|string|max:500',
-            ]);
-
-            $tarianId = $req->tarian_id;
-            $tanggal  = $req->tanggal_latihan;
-            $jam      = $req->jam_latihan;
-
-            // 1. Cek apakah user sudah daftar tarian ini di tanggal & jam yang sama
-            $exists = PendaftaranTari::where([
-                'user_id'         => $user->id,
-                'tarian_id'       => $tarianId,
-                'tanggal_latihan' => $tanggal,
-                'jam_latihan'     => $jam,
-            ])->whereIn('status', ['aktif', 'pending'])->exists();
-
-            if ($exists) {
-                return response()->json(['success' => false, 'message' => 'Kamu sudah booking sesi ini!'], 422);
-            }
-
-            // 2. Cek Kapasitas Aula (Maksimal 2 tarian berbeda per jam)
-            $sessionsAtTime = PendaftaranTari::where('tanggal_latihan', $tanggal)
-                ->where('jam_latihan', $jam)
-                ->whereIn('status', ['aktif', 'pending'])
-                ->with('tarian')
-                ->get();
-
-            $distinctDances = $sessionsAtTime->pluck('tarian.nama', 'tarian_id')->unique();
-
-            if ($distinctDances->count() >= 2) {
-                if (!$distinctDances->has($tarianId)) {
-                    $names = $distinctDances->implode(' dan ');
-                    return response()->json(['success' => false, 'message' => "Maaf, aula sudah penuh pada jam ini oleh kelas: {$names}. Silakan pilih jam atau tanggal lain."], 422);
-                }
-            }
-
-            // 3. Cek kapasitas orang dalam kelompok tarian yang dipilih (Maksimal 5 orang)
-            $countOrangDiTarian = $sessionsAtTime->where('tarian_id', $tarianId)->count();
-            if ($countOrangDiTarian >= 5) {
-                return response()->json(['success' => false, 'message' => "Maaf, kelompok tari yang Anda pilih pada jam ini sudah mencapai batas maksimal (5 orang). Silakan pilih jam lain."], 422);
-            }
-
-            // 4. Tentukan status: pengunjung perlu konfirmasi admin, anggota tetap langsung aktif
-            $isPengunjung = $user->tipe_anggota === 'pengunjung';
-            $status       = $isPengunjung ? 'pending' : 'aktif';
-
-            // 5. Update kadaluarsa jika pengunjung & sesi baru lebih jauh
-            if ($isPengunjung) {
-                $tglBaru = \Carbon\Carbon::parse($tanggal)->addDays(3)->toDateString();
-                if (is_null($user->tgl_kadaluarsa) || $tglBaru > $user->tgl_kadaluarsa) {
-                    \App\Models\User::where('id', $user->id)->update(['tgl_kadaluarsa' => $tglBaru]);
-                }
-            }
-
-            // 6. Simpan Pendaftaran
-            $p = PendaftaranTari::create([
-                'user_id'         => $user->id,
-                'tarian_id'       => $tarianId,
-                'tanggal_latihan' => $tanggal,
-                'jam_latihan'     => $jam,
-                'status'          => $status,
-                'tanggal_daftar'  => now(),
-                'catatan'         => $req->catatan,
-            ]);
-
-            $p->load(['tarian']);
-
-            $msg = $isPengunjung
-                ? "Booking Tari {$p->tarian->nama} terkirim! Tanggal {$tanggal} jam {$jam}. Menunggu konfirmasi admin."
-                : "Berhasil mendaftar Tari {$p->tarian->nama}! Tanggal {$tanggal} jam {$jam}.";
-
-            return response()->json([
-                'success' => true,
-                'message' => $msg,
-                'data'    => $p,
-            ], 201);
-        });
+        Route::post('/pendaftaran', [\App\Http\Controllers\BookingController::class, 'store']);
 
         Route::post('/pendaftaran/{id}/batalkan', function (Illuminate\Http\Request $req, $id) {
             $p = PendaftaranTari::where('id', $id)->where('user_id', $req->user()->id)->firstOrFail();

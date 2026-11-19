@@ -47,12 +47,13 @@
 
 <div class="card">
     <div class="card-header">
-        <span class="card-title">Total: {{ $anggota->total() }} anggota</span>
+        <span class="card-title">Total seluruh anggota: {{ $totalAnggota }}</span>
+        <p>Hasil filter: {{ $anggota->total() }} anggota. Menampilkan {{ $anggota->firstItem() ?? 0 }}–{{ $anggota->lastItem() ?? 0 }}. Halaman {{ $anggota->currentPage() }} dari {{ $anggota->lastPage() }}.</p>
     </div>
     <div class="table-wrap">
         <table>
             <thead>
-                <tr><th>NIS</th><th>Nama</th><th>Email</th><th>No. HP</th><th>Tipe</th><th>Terdaftar</th><th>Keluar</th><th>Status</th><th>Aksi</th></tr>
+                <tr><th>NIS</th><th>Nama</th><th>Email</th><th>No. HP</th><th>Tipe</th><th>Terdaftar</th><th>Berlaku Hingga</th><th>Status</th><th>Aksi</th></tr>
             </thead>
             <tbody>
                 @forelse($anggota as $a)
@@ -61,7 +62,7 @@
                     <td>
                         <div style="display:flex;align-items:center;gap:10px">
                             @if($a->foto)
-                                <img src="{{ asset('storage/'.$a->foto) }}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
+                                <img src="{{ preg_match('~^https?://~i', $a->foto) ? $a->foto : asset('storage/'.$a->foto) }}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
                             @else
                                 <div class="user-avatar" style="width:34px;height:34px;font-size:.8rem;flex-shrink:0">{{ strtoupper(substr($a->name,0,1)) }}</div>
                             @endif
@@ -73,7 +74,9 @@
                             </div>
                         </div>
                     </td>
-                    <td style="font-size:.875rem">{{ $a->email }}</td>
+                    <td style="font-size:.875rem">{{ $a->email }}
+                        <div style="font-size:.75rem;color:var(--muted)">{{ $a->email_verified_at ? 'Email terverifikasi' : 'Email belum terverifikasi' }}</div>
+                    </td>
                     <td style="font-size:.875rem">{{ $a->no_hp ?? '-' }}</td>
                     <td>
                         <span class="chip {{ $a->tipe_anggota_color }}">
@@ -81,8 +84,8 @@
                         </span>
                     </td>
                     <td style="font-size:.8rem;white-space:nowrap">{{ $a->created_at->format('d M Y') }}</td>
-                    <td style="font-size:.8rem;white-space:nowrap;color:{{ $a->tanggal_keluar && $a->tanggal_keluar->isPast() ? '#DC2626' : '#7A7A7A' }}">
-                        {{ $a->tanggal_keluar ? $a->tanggal_keluar->format('d M Y') : '-' }}
+                    <td style="font-size:.8rem;white-space:nowrap;color:{{ $a->tgl_kadaluarsa && $a->tgl_kadaluarsa->copy()->endOfDay()->isPast() ? '#DC2626' : '#7A7A7A' }}">
+                        {{ $a->tgl_kadaluarsa ? $a->tgl_kadaluarsa->format('d M Y') : '-' }}
                     </td>
                     <td>
                         <form method="POST" action="{{ route('admin.anggota.toggle',$a->id) }}" style="display:inline">
@@ -91,7 +94,8 @@
                                 class="chip {{ $a->status==='aktif' ? 'chip--green' : 'chip--gray' }}"
                                 style="border:none;cursor:pointer"
                                 title="Klik untuk toggle status"
-                                onclick="return {{ $a->status==='aktif' ? 'confirm(\'Nonaktifkan akun ' . $a->name . '?\')' : 'true' }}">
+                                data-confirm="{{ $a->status === 'aktif' ? 'Nonaktifkan akun '.$a->name.'?' : '' }}"
+                                onclick="return !this.dataset.confirm || confirm(this.dataset.confirm)">
                                 {{ $a->status==='aktif' ? '● Aktif' : '○ Non-aktif' }}
                             </button>
                         </form>
@@ -100,7 +104,7 @@
                         <a href="{{ route('admin.anggota.edit',$a->id) }}" class="btn btn-secondary btn-sm">Edit</a>
                         <form method="POST" action="{{ route('admin.anggota.destroy',$a->id) }}" style="display:inline">
                             @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus anggota {{ $a->name }}? Tindakan ini tidak dapat dibatalkan.')">Hapus</button>
+                            <button type="submit" class="btn btn-danger btn-sm" data-confirm="Hapus anggota {{ $a->name }}? Tindakan ini tidak dapat dibatalkan." onclick="return confirm(this.dataset.confirm)">Hapus</button>
                         </form>
                     </td>
                 </tr>

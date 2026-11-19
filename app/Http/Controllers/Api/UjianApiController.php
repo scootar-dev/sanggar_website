@@ -31,7 +31,7 @@ class UjianApiController extends Controller
 
         // 2. Cek Event Ujian
         $event = Event::find($request->event_id);
-        if ($event->kategori !== 'midhang_sore' || $event->status === 'selesai') {
+        if ($event->kategori !== 'midhang_sore' || $event->status !== 'akan_datang' || $event->tanggal->copy()->endOfDay()->isPast()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Pendaftaran ujian hanya dibuka untuk event Midhang Sore yang akan datang.'

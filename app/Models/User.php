@@ -27,6 +27,8 @@ class User extends Authenticatable {
         'tgl_kadaluarsa',
         'catatan_keanggotaan',
         'nomor_induk',
+        'fcm_token',
+        'email_verified_at',
     ];
 
     /**
@@ -87,7 +89,8 @@ class User extends Authenticatable {
 
     public function isAktif(): bool
     {
-        return $this->status === 'aktif';
+        return $this->status === 'aktif'
+            && !($this->tipe_anggota === 'pengunjung' && $this->tgl_kadaluarsa && $this->tgl_kadaluarsa->endOfDay()->isPast());
     }
 
     public function getTipeAnggotaLabelAttribute(): string

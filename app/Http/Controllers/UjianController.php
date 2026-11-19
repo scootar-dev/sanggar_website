@@ -30,7 +30,7 @@ class UjianController extends Controller
 
         // 2. Cek Event Ujian (Midhang Sore & status akan datang)
         $event = Event::findOrFail($request->event_id);
-        if ($event->kategori !== 'midhang_sore' || $event->status === 'selesai') {
+        if ($event->kategori !== 'midhang_sore' || $event->status !== 'akan_datang' || $event->tanggal->copy()->endOfDay()->isPast()) {
             return back()->with('error', 'Pendaftaran ujian hanya dibuka untuk event Midhang Sore yang akan datang.');
         }
 

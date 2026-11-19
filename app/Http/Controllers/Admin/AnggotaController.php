@@ -11,7 +11,8 @@ class AnggotaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::anggotaVerified();
+        $query = User::where('role', 'anggota');
+        $totalAnggota = (clone $query)->count();
         if ($request->filled('search')) {
             $q = $request->search;
             $query->where(fn($w) => $w->where('name','like',"%$q%")->orWhere('email','like',"%$q%"));
@@ -19,15 +20,15 @@ class AnggotaController extends Controller
         if ($request->filled('status')) $query->where('status', $request->status);
         if ($request->filled('tipe'))   $query->where('tipe_anggota', $request->tipe);
 
-        $anggota = $query->orderByDesc('created_at')->paginate(15)->withQueryString();
-        return view('admin.anggota.index', compact('anggota'));
+        $anggota = $query->orderByDesc('created_at')->orderByDesc('id')->paginate(15)->withQueryString();
+        return view('admin.anggota.index', compact('anggota', 'totalAnggota'));
     }
 
     // ── Export PDF semua anggota ──────────────────────────────────
     public function downloadPdf(Request $request)
     {
         $tipe = $request->tipe ?? 'semua';
-        $query = User::anggotaVerified()->orderBy('name');
+        $query = User::where('role', 'anggota')->orderBy('name');
         if ($tipe !== 'semua') $query->where('tipe_anggota', $tipe);
         $anggota = $query->get();
 
@@ -44,7 +45,7 @@ class AnggotaController extends Controller
     public function downloadExcel(Request $request)
     {
         $tipe = $request->tipe ?? 'semua';
-        $query = User::anggotaVerified()->orderBy('name');
+        $query = User::where('role', 'anggota')->orderBy('name');
         if ($tipe !== 'semua') $query->where('tipe_anggota', $tipe);
         $anggota = $query->get();
 

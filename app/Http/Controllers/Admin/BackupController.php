@@ -207,6 +207,7 @@ class BackupController extends Controller
 
     public function download($filename)
     {
+        $this->validateFilename($filename);
         $filename = urldecode($filename);
         $backupPath = storage_path("app/backups/" . basename($filename));
 
@@ -242,6 +243,7 @@ class BackupController extends Controller
 
     public function restore($filename)
     {
+        $this->validateFilename($filename);
         try {
             set_time_limit(300);
 
@@ -288,9 +290,24 @@ class BackupController extends Controller
                 throw new Exception("File database.sql tidak ditemukan di dalam backup.");
             }
 
+            $totalSize = 0;
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $entry = $zip->statIndex($i);
+                $name = $entry['name'];
+                $totalSize += $entry['size'];
+                if ($totalSize > 1024 * 1024 * 1024 || $zip->numFiles > 10000
+                    || str_contains($name, '\\') || str_contains($name, ':')
+                    || preg_match('~(^|/)\.\.?(/|$)~', $name)
+                    || (!str_starts_with($name, 'storage/') && $name !== 'database.sql')
+                    || preg_match('~\.(php\d*|phtml|phar|htaccess|html?|svg|js)$~i', $name)) {
+                    $zip->close();
+                    throw new Exception('Isi arsip backup tidak valid atau melebihi batas ukuran.');
+                }
+            }
             for ($i = 0; $i < $zip->numFiles; $i++) {
                 $stat = $zip->statIndex($i);
                 if (str_starts_with($stat['name'], 'storage/')) {
+                    if (str_ends_with($stat['name'], '/')) continue;
                     $relativePath = substr($stat['name'], 8);
                     $destPath = storage_path('app/public/' . $relativePath);
 
@@ -325,6 +342,7 @@ class BackupController extends Controller
 
     public function delete($filename)
     {
+        $this->validateFilename($filename);
         try {
             $deleted = false;
             $filename = urldecode($filename);
@@ -365,6 +383,11 @@ class BackupController extends Controller
             session()->regenerate();
             return redirect()->route('admin.backup.index');
         }
+    }
+
+    private function validateFilename(string $filename): void
+    {
+        abort_unless(preg_match('/\Abackup-[a-zA-Z0-9_-]+\.zip\z/', $filename), 422, 'Nama backup tidak valid.');
     }
 
     private function exportDatabaseSql(): string

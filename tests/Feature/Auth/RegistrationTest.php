@@ -1,31 +1,24 @@
 <?php
-
 namespace Tests\Feature\Auth;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Mail\OtpRegistrationMail;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
 {
-    use RefreshDatabase;
-
-    public function test_registration_screen_can_be_rendered(): void
+    public function test_registration_requires_otp(): void
     {
-        $response = $this->get('/register');
-
-        $this->assertTrue(true);
-    }
-
-    public function test_new_users_can_register(): void
-    {
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ]);
-
-        // Mengubah asersi agar langsung lolos tanpa terikat validasi form registrasi bawaan
-        $this->assertTrue(true);
+        Mail::fake();
+        $this->get('/register')->assertOk();
+        $this->post('/register', [
+            'name' => 'Anggota Baru', 'email' => 'baru@example.com', 'alamat' => 'Indramayu',
+            'tipe_anggota' => 'tetap', 'password' => 'Password123', 'password_confirmation' => 'Password123',
+        ])->assertSessionHasNoErrors();
+        $user = User::where('email', 'baru@example.com')->firstOrFail();
+        $this->assertNull($user->email_verified_at);
+        $this->assertGuest();
+        Mail::assertSent(OtpRegistrationMail::class);
     }
 }

@@ -385,6 +385,7 @@
         </main>
 
         {{-- Chatbot --}}
+        <a href="{{ route('member.progress') }}" style="display:block;padding:16px;text-align:center">Pengumuman, Rapor dan Lencana</a>
         @include('components.chatbot')
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="{{ asset('js/sweetalert-integration.js') }}"></script>

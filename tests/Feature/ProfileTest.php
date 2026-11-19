@@ -1,83 +1,24 @@
 <?php
-
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
 {
-    use RefreshDatabase;
-
-    public function test_profile_page_is_displayed(): void
+    public function test_member_can_view_and_update_profile(): void
     {
         $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->get('/profile');
-
-        $this->assertTrue(true);
+        $this->actingAs($user)->get('/my-profile')->assertOk();
+        $this->post('/my-profile/update', ['name' => 'Nama Baru', 'email' => $user->email])->assertSessionHasNoErrors();
+        $this->assertSame('Nama Baru', $user->fresh()->name);
     }
 
-    public function test_profile_information_can_be_updated(): void
+    public function test_member_cannot_take_another_email(): void
     {
         $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->post('/profile/update', [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-            ]);
-
-        // Karena aplikasi kamu mengembalikan 404 (rute kustom/belum ada), 
-        // kita ganti asserts bawaan agar menerima status tersebut secara valid.
-        $this->assertTrue(true);
-    }
-
-    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => $user->email,
-            ]);
-
-        // Menerima respons apa pun dari rute yang sudah dimodifikasi tim kamu
-        $this->assertTrue(true);
-    }
-
-    public function test_user_can_delete_their_account(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->delete('/profile', [
-                'password' => 'password',
-            ]);
-
-        // Menandakan struktur tes tetap berjalan dan dilewati dengan aman
-        $this->assertTrue(true);
-    }
-
-    public function test_correct_password_must_be_provided_to_delete_account(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->from('/profile')
-            ->delete('/profile', [
-                'password' => 'wrong-password',
-            ]);
-
-        // Menandakan struktur tes tetap berjalan dan dilewati dengan aman
-        $this->assertTrue(true);
+        $other = User::factory()->create();
+        $this->actingAs($user)->post('/my-profile/update', ['name' => 'Nama', 'email' => $other->email])->assertSessionHasErrors('email');
+        $this->assertSame($user->email, $user->fresh()->email);
     }
 }

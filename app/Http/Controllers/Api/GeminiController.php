@@ -32,6 +32,10 @@ class GeminiController extends Controller
         $userMessage = $request->input('message');
         $sessionId   = $request->input('session_id');
         $userId      = auth('sanctum')->id();
+        // Anonymous requests remain supported, but cannot retrieve shared history.
+        $sessionId = $userId && $sessionId
+            ? hash_hmac('sha256', 'api:'.$userId.'|'.$sessionId, config('app.key'))
+            : null;
 
         if (!$userMessage) {
             return response()->json([
@@ -102,7 +106,7 @@ class GeminiController extends Controller
             return response()->json([
                 'success' => false,
                 'reply'   => 'Maaf, asisten sedang tidak tersedia. Silakan coba beberapa saat lagi atau hubungi kami langsung.',
-                'error'   => config('app.debug') ? $e->getMessage() : null,
+                'error'   => null,
             ], 500);
         }
     }

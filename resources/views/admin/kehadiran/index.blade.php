@@ -139,6 +139,7 @@
     <div style="background:#fff;border-radius:16px;border:1px solid var(--border);overflow:hidden;margin-bottom:24px">
         <div style="padding:18px 24px;border-bottom:1px solid var(--border);background:#FAFAF8">
             <h3 style="font-size:1rem;font-weight:700;color:var(--dark)">Input Kehadiran Manual (Anggota)</h3>
+            <a class="btn btn-primary" href="{{ route('admin.kehadiran.booking') }}">Input absensi berdasarkan tanggal dan jam booking</a>
             <p style="font-size:.8rem;color:var(--muted);margin-top:2px">Gunakan ini jika anggota lupa membawa HP.</p>
         </div>
         <div style="padding:24px">

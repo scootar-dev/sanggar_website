@@ -39,8 +39,7 @@ class BookingController extends Controller
 
     public function confirm($id, \App\Services\FcmService $fcmService)
     {
-        $booking = PendaftaranTari::with('user', 'tarian')->findOrFail($id);
-        $booking->update(['status' => 'aktif']);
+        $booking = app(\App\Services\BookingService::class)->confirm((int) $id);
 
         // Kirim Push Notification ke User jika FCM token ada
         if ($booking->user && $booking->user->fcm_token) {
@@ -152,5 +151,4 @@ class BookingController extends Controller
         return 'https://wa.me/' . $noHp . '?text=' . urlencode($pesan);
     }
 }
-
 

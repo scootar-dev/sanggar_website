@@ -14,6 +14,7 @@ class Kehadiran extends Model
 
     protected $fillable = [
         'user_id',
+        'pendaftaran_tari_id',
         'jadwal_id',
         'tarian_id',
         'tanggal',

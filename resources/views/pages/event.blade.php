@@ -1,6 +1,12 @@
 @extends('layouts.app')
 @section('title', 'Event & Pentas Mendatang')
 @section('content')
+@if(session('ticket_url'))
+<div class="container" style="padding:20px" role="status">
+    <p>Simpan tautan ini untuk mengunduh tiket setelah pembayaran diverifikasi.</p>
+    <a class="btn btn-primary" href="{{ session('ticket_url') }}">Unduh E-Tiket</a>
+</div>
+@endif
 
 {{-- HERO --}}
 <section class="page-hero">
@@ -35,7 +41,11 @@
 
             <div id="modalHargaWrap" style="display: none; margin-bottom: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;">
                 <strong style="display: block; color: #d97706; margin-bottom: 5px;">HTM / Harga Tiket: <span id="modalHargaValue"></span></strong>
-                <p style="margin: 0; font-size: 0.85rem; color: #92400e;">Silakan transfer ke <strong>BCA 1234567890 a.n Sanggar Mulya Bhakti</strong> dan lampirkan buktinya di bawah ini.</p>
+                @if(config('payments.bank_name') && config('payments.account_number') && config('payments.account_holder'))
+                <p style="margin: 0; font-size: 0.85rem; color: #92400e;">Silakan transfer ke <strong>{{ config('payments.bank_name') }} {{ config('payments.account_number') }} a.n {{ config('payments.account_holder') }}</strong> dan lampirkan buktinya di bawah ini.</p>
+                @else
+                <p>Hubungi admin untuk informasi rekening resmi dan konfirmasi pembayaran.</p>
+                @endif
             </div>
 
             <div style="margin-bottom: 15px;">

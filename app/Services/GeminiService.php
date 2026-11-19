@@ -441,7 +441,8 @@ INSTRUCTION;
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => json_encode($requestBody),
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_TIMEOUT        => 30,
         ]);
 
@@ -511,7 +512,8 @@ INSTRUCTION;
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => json_encode($requestBody),
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_TIMEOUT        => 30,
         ]);
 

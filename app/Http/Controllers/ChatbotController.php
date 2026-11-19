@@ -23,7 +23,7 @@ class ChatbotController extends Controller
             'session_id' => 'required|string|max:100',
         ]);
 
-        $sessionId = $request->session_id;
+        $sessionId = $this->scopedSessionId($request);
         $userId    = auth()->id();
 
         // Simpan pesan user
@@ -120,8 +120,15 @@ class ChatbotController extends Controller
 
     public function clearHistory(Request $request)
     {
-        ChatbotMessage::where('session_id', $request->session_id)->delete();
+        $request->validate(['session_id' => 'required|string|max:100']);
+        ChatbotMessage::where('session_id', $this->scopedSessionId($request))->delete();
         return response()->json(['success' => true]);
+    }
+
+    private function scopedSessionId(Request $request): string
+    {
+        $owner = auth()->check() ? 'user:'.auth()->id() : 'web:'.$request->session()->token();
+        return hash_hmac('sha256', $owner.'|'.$request->session_id, config('app.key'));
     }
 
     public function recommendDance(Request $request)
