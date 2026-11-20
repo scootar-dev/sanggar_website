@@ -496,6 +496,16 @@ tbody tr:last-child td { border-bottom: none; }
     .rapor-chart { position: static !important; }
 }
 
+@media (max-width: 1023px) {
+    .admin-responsive-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .admin-responsive-grid > * {
+        min-width: 0;
+    }
+}
+
 /* --- MOBILE (≤768px) --- */
 @media (max-width: 768px) {
     .admin-content { padding: 16px; }

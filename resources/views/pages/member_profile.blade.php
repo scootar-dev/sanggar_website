@@ -2,7 +2,17 @@
 @section('title', 'Profil Saya')
 @section('content')
 
-<section style="padding-top:20px; padding-bottom:60px;">
+<style>
+    @media (max-width: 480px) {
+        .member-profile [style*="grid-template-columns"] {
+            grid-template-columns: minmax(0, 1fr) !important;
+        }
+        .member-profile input,
+        .member-profile select { min-width: 0; max-width: 100%; }
+    }
+</style>
+
+<section class="member-profile" style="padding-top:20px; padding-bottom:60px;">
     {{-- HEADER --}}
     <div class="m-page-header">
         <span class="m-badge">Pengaturan</span>

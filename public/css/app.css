@@ -797,6 +797,52 @@ img {
     }
 }
 
+/* Navigation and contact content on narrow screens. */
+@media (max-width: 1023px) {
+    .navbar-menu,
+    .navbar-actions {
+        display: none;
+    }
+
+    .hamburger {
+        display: flex;
+        flex-shrink: 0;
+    }
+
+    .mobile-menu {
+        display: block;
+        overflow-y: auto;
+    }
+
+    .footer-kontak span {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-inner {
+        gap: 12px;
+    }
+
+    .navbar-brand {
+        min-width: 0;
+        flex-shrink: 1;
+        white-space: normal;
+        line-height: 1.2;
+    }
+
+    .navbar-brand img {
+        flex-shrink: 0;
+    }
+
+    #flash-success,
+    #flash-error {
+        max-width: calc(100% - 40px) !important;
+        overflow-wrap: anywhere;
+    }
+}
+
 /* Small button style for "Lihat Lainnya" */
 .btn-lihat-sm {
     background: var(--primary) !important;

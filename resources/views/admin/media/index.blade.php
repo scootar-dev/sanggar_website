@@ -10,7 +10,7 @@
 </div>
 
 {{-- UPLOAD FORM --}}
-<div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px">
+<div class="admin-responsive-grid" style="display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px">
     <div class="card">
         <div class="card-header"><span class="card-title">Upload Media Baru</span></div>
         <div class="card-body">

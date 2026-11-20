@@ -238,6 +238,13 @@
             .m-content { padding: 20px 16px 60px; }
             .m-overlay.show { display: block; }
         }
+        @media (max-width: 480px) {
+            .m-topbar { padding-inline: 12px; gap: 8px; }
+            .m-topbar-title { min-width: 0; font-size: .9rem; line-height: 1.3; }
+            .m-topbar-toggle, .m-topbar-right { flex-shrink: 0; }
+            .m-topbar-link { padding: 8px; }
+            .m-flash { max-width: calc(100% - 48px); overflow-wrap: anywhere; }
+        }
     </style>
     @stack('styles')
 </head>

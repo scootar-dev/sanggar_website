@@ -9,7 +9,7 @@
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px; align-items: start;">
+<div class="admin-responsive-grid" style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px; align-items: start;">
     
     {{-- FORM KIRIM BROADCAST --}}
     <div class="card">

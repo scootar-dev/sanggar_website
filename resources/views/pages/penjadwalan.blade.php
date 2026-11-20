@@ -18,7 +18,7 @@
         <span style="flex: 1; height: 1px; background: #e5e7eb;"></span>
     </h3>
     
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+    <div class="schedule-routine-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
         {{-- JUMAT --}}
         <div style="background: #fff; padding: 32px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.02); text-align: center;">
             <div style="width: 60px; height: 60px; background: #fff7ed; color: #c65d2e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 1.5rem; font-weight: 900;">J</div>
@@ -141,6 +141,18 @@
     @keyframes modalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     
     .time-slot:hover { border-color: #c65d2e; color: #c65d2e; background: #fffcfb; }
+
+    @media (max-width: 1023px) {
+        #daftarModalContent {
+            max-height: calc(100dvh - 40px);
+            overflow-y: auto !important;
+        }
+    }
+    @media (max-width: 480px) {
+        .schedule-routine-grid { grid-template-columns: minmax(0, 1fr) !important; }
+        #daftarModalContent > div,
+        #daftarModalContent > form { padding: 20px !important; }
+    }
 </style>
 
 <script>
