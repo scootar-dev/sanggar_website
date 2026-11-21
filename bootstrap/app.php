@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
         // Trust all proxies (required when behind Nginx Proxy Manager / reverse proxy)
         $middleware->trustProxies(at: '*');
         $middleware->validateCsrfTokens(except: ['admin/midtrans/webhook']);
@@ -21,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
+        $middleware->appendToGroup('web', \App\Http\Middleware\EnsureAccountActive::class);
+        $middleware->appendToGroup('api', \App\Http\Middleware\EnsureAccountActive::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Tangani 419 Page Expired → redirect ke login dengan pesan ramah

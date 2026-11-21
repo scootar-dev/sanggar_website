@@ -1,47 +1,19 @@
 <?php
-
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class PasswordUpdateTest extends TestCase
 {
-    use RefreshDatabase;
-
-    public function test_password_can_be_updated(): void
+    public function test_password_update_requires_correct_current_password(): void
     {
         $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->from('/profile')
-            ->put('/password', [
-                'current_password' => 'password',
-                'password' => 'new-password',
-                'password_confirmation' => 'new-password',
-            ]);
-
-        // Mengubah asersi agar langsung lolos tanpa mengecek redirect/hash rute yang tidak aktif
-        $this->assertTrue(true);
-    }
-
-    public function test_correct_password_must_be_provided_to_update_password(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->from('/profile')
-            ->put('/password', [
-                'current_password' => 'wrong-password',
-                'password' => 'new-password',
-                'password_confirmation' => 'new-password',
-            ]);
-
-        // Mengubah asersi agar langsung lolos secara aman
-        $this->assertTrue(true);
+        $data = ['current_password' => 'wrong', 'password' => 'NewPassword123', 'password_confirmation' => 'NewPassword123'];
+        $this->actingAs($user)->post('/member/password', $data)->assertSessionHasErrorsIn('password', 'current_password');
+        $this->assertTrue(Hash::check('password', $user->fresh()->password));
+        $this->post('/member/password', array_replace($data, ['current_password' => 'password']))->assertSessionHas('password_success');
+        $this->assertTrue(Hash::check('NewPassword123', $user->fresh()->password));
     }
 }

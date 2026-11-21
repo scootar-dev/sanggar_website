@@ -35,9 +35,10 @@ class DashboardController extends Controller
             ->get();
 
         /* ----- KEHADIRAN BULAN INI ----- */
-        $bulanIni = now()->format('Y-m');
+        $bulanIni = now()->startOfMonth();
         $kehadiranBulanIni = Kehadiran::where('user_id', $user->id)
-            ->whereRaw("DATE_FORMAT(tanggal, '%Y-%m') = ?", [$bulanIni])
+            ->where('tanggal', '>=', $bulanIni->toDateString())
+            ->where('tanggal', '<', $bulanIni->copy()->addMonth()->toDateString())
             ->selectRaw('status, COUNT(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status')
