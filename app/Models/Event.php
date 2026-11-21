@@ -24,6 +24,16 @@ class Event extends Model {
         return $this->hasMany(PesertaEvent::class);
     }
 
+    /**
+     * Otomatis ubah status event yang sudah lewat tanggalnya menjadi 'selesai'
+     */
+    public static function autoUpdateStatus(): int
+    {
+        return static::where('status', 'akan_datang')
+            ->whereDate('tanggal', '<', now()->toDateString())
+            ->update(['status' => 'selesai']);
+    }
+
     public function scopeSelesai($q)    { return $q->where('status','selesai')->orderByDesc('tanggal'); }
     public function scopeMendatang($q)  { return $q->where('status','akan_datang')->orderBy('tanggal'); }
     public function scopePending($q)    { return $q->where('status','pending_approval')->orderBy('created_at'); }

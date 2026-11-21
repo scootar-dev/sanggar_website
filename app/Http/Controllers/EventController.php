@@ -4,6 +4,7 @@ use App\Models\Event;
 
 class EventController extends Controller {
     public function index() {
+        Event::autoUpdateStatus();
         $midhang = Event::where('status', '!=', 'pending_approval')->where('status', '!=', 'selesai')->whereDate('tanggal', '>=', now())->where('kategori', 'midhang_sore')->orderBy('tanggal')->get();
         $studi = Event::where('status', '!=', 'pending_approval')->where('status', '!=', 'selesai')->whereDate('tanggal', '>=', now())->where('kategori', 'studi_budaya')->orderBy('tanggal')->get();
         $pagelaran = Event::where('status', '!=', 'pending_approval')->where('status', '!=', 'selesai')->whereDate('tanggal', '>=', now())->where('kategori', 'pagelaran')->orderBy('tanggal')->get();

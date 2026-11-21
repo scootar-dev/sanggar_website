@@ -34,9 +34,10 @@ class AnggotaController extends Controller
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.anggota.pdf', compact('anggota', 'tipe'));
         $label = match($tipe) {
-            'pengunjung' => 'Sementara',
-            'private'    => 'Private',
-            default      => 'Semua',
+            'anggota_tetap' => 'Tetap',
+            'pengunjung'    => 'Sementara',
+            'private'       => 'Private',
+            default         => 'Semua',
         };
         return $pdf->download("Data-Anggota-{$label}-SMB-" . now()->format('Y-m-d') . '.pdf');
     }
@@ -163,6 +164,10 @@ class AnggotaController extends Controller
 
         $data = $request->only('name','email','alamat','no_hp','status','tipe_anggota','tgl_kadaluarsa','catatan_keanggotaan');
         if ($request->filled('password')) $data['password'] = Hash::make($request->password);
+
+        if ($request->has('is_verified')) {
+            $data['email_verified_at'] = $request->boolean('is_verified') ? ($anggota->email_verified_at ?? now()) : null;
+        }
 
         if ($request->hasFile('foto')) {
             if ($anggota->foto && Storage::disk('public')->exists($anggota->foto)) {

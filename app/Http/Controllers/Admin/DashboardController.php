@@ -9,6 +9,9 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        Event::autoUpdateStatus();
+        PendaftaranTari::autoRejectExpiredPending();
+
         // Basic Stats
         $stats = [
             'anggota'     => User::where('role', 'anggota')->count(),

@@ -68,6 +68,22 @@ class ProfileController extends Controller
         $profil = SanggarProfile::getInstance();
         $data   = $request->except(['_token', '_method', 'foto_profil', 'foto_sejarah']);
 
+        // Format dan validasi link media sosial jika diisi
+        foreach (['instagram', 'facebook', 'youtube'] as $platform) {
+            if (!empty($data[$platform])) {
+                $candidate = new SanggarProfile([$platform => $data[$platform]]);
+                $url = $candidate->socialUrl($platform);
+                if (!$url) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        $platform => 'Masukkan link resmi ' . ucfirst($platform) . ' atau username yang valid.'
+                    ]);
+                }
+                $data[$platform] = $url;
+            } else {
+                $data[$platform] = null;
+            }
+        }
+
         foreach (['foto_profil', 'foto_sejarah'] as $field) {
             if ($request->hasFile($field)) {
                 if ($profil->$field) Storage::disk('public')->delete($profil->$field);

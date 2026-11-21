@@ -5,7 +5,7 @@
 <div class="page-header">
     <div class="page-header-text">
         <h1>Kelola Anggota</h1>
-        <p>Daftar seluruh anggota, pengunjung, dan peserta private Sanggar Mulya Bhakti.</p>
+        <p>Daftar seluruh anggota tetap dan anggota sementara Sanggar Mulya Bhakti.</p>
     </div>
     <div class="page-header-actions">
         {{-- Export PDF --}}
@@ -13,12 +13,13 @@
             <button onclick="toggleExport()" style="background:#F3F4F6;color:#3D3D3D;border:1px solid #E8E0D8;font-weight:700;padding:10px 18px;border-radius:50px;cursor:pointer;font-size:.875rem;display:flex;align-items:center;gap:6px">
                 📥 Export ▾
             </button>
-            <div id="export-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #E8E0D8;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.1);min-width:200px;z-index:100;overflow:hidden">
+            <div id="export-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #E8E0D8;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.1);min-width:210px;z-index:100;overflow:hidden">
                 <a href="{{ route('admin.anggota.pdf') }}" target="_blank" style="display:block;padding:10px 16px;font-size:.875rem;font-weight:600;color:#1A1A1A;text-decoration:none;border-bottom:1px solid #F5F3F1">🖨 PDF Semua Anggota</a>
-                <a href="{{ route('admin.anggota.pdf', ['tipe'=>'pengunjung']) }}" target="_blank" style="display:block;padding:10px 16px;font-size:.875rem;font-weight:600;color:#1A1A1A;text-decoration:none;border-bottom:1px solid #F5F3F1">🖨 PDF Pengunjung</a>
+                <a href="{{ route('admin.anggota.pdf', ['tipe'=>'anggota_tetap']) }}" target="_blank" style="display:block;padding:10px 16px;font-size:.875rem;font-weight:600;color:#1A1A1A;text-decoration:none;border-bottom:1px solid #F5F3F1">🖨 PDF Anggota Tetap</a>
+                <a href="{{ route('admin.anggota.pdf', ['tipe'=>'pengunjung']) }}" target="_blank" style="display:block;padding:10px 16px;font-size:.875rem;font-weight:600;color:#1A1A1A;text-decoration:none;border-bottom:1px solid #F5F3F1">🖨 PDF Anggota Sementara</a>
                 <a href="{{ route('admin.anggota.excel', ['tipe'=>'semua']) }}" style="display:block;padding:10px 16px;font-size:.875rem;font-weight:600;color:#1A1A1A;text-decoration:none;border-bottom:1px solid #F5F3F1">📊 Excel Semua</a>
-                <a href="{{ route('admin.anggota.excel', ['tipe'=>'pengunjung']) }}" style="display:block;padding:10px 16px;font-size:.875rem;font-weight:600;color:#1A1A1A;text-decoration:none;border-bottom:1px solid #F5F3F1">📊 Excel Pengunjung</a>
-                <a href="{{ route('admin.anggota.excel', ['tipe'=>'private']) }}" style="display:block;padding:10px 16px;font-size:.875rem;font-weight:600;color:#1A1A1A;text-decoration:none">📊 Excel Private</a>
+                <a href="{{ route('admin.anggota.excel', ['tipe'=>'anggota_tetap']) }}" style="display:block;padding:10px 16px;font-size:.875rem;font-weight:600;color:#1A1A1A;text-decoration:none;border-bottom:1px solid #F5F3F1">📊 Excel Anggota Tetap</a>
+                <a href="{{ route('admin.anggota.excel', ['tipe'=>'pengunjung']) }}" style="display:block;padding:10px 16px;font-size:.875rem;font-weight:600;color:#1A1A1A;text-decoration:none">📊 Excel Anggota Sementara</a>
             </div>
         </div>
         <a href="{{ route('admin.anggota.create') }}" class="btn btn-primary">+ Tambah Anggota</a>
@@ -28,11 +29,10 @@
 {{-- FILTER --}}
 <form method="GET" style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
     <input type="text" name="search" class="form-control" placeholder="Cari nama atau email..." value="{{ request('search') }}" style="max-width:240px">
-    <select name="tipe" class="form-control" style="max-width:180px">
+    <select name="tipe" class="form-control" style="max-width:200px">
         <option value="">Semua Tipe</option>
         <option value="anggota_tetap" {{ request('tipe')==='anggota_tetap' ? 'selected':'' }}>🎭 Anggota Tetap</option>
-        <option value="pengunjung"    {{ request('tipe')==='pengunjung'    ? 'selected':'' }}>👁 Pengunjung</option>
-        <option value="private"       {{ request('tipe')==='private'       ? 'selected':'' }}>🎯 Private</option>
+        <option value="pengunjung"    {{ request('tipe')==='pengunjung'    ? 'selected':'' }}>🎯 Anggota Sementara</option>
     </select>
     <select name="status" class="form-control" style="max-width:150px">
         <option value="">Semua Status</option>
@@ -48,7 +48,6 @@
 <div class="card">
     <div class="card-header">
         <span class="card-title">Total seluruh anggota: {{ $totalAnggota }}</span>
-        <p>Hasil filter: {{ $anggota->total() }} anggota. Menampilkan {{ $anggota->firstItem() ?? 0 }}–{{ $anggota->lastItem() ?? 0 }}. Halaman {{ $anggota->currentPage() }} dari {{ $anggota->lastPage() }}.</p>
     </div>
     <div class="table-wrap">
         <table>
