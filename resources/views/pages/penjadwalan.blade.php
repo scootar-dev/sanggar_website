@@ -18,13 +18,13 @@
         <span style="flex: 1; height: 1px; background: #e5e7eb;"></span>
     </h3>
     
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+    <div class="schedule-routine-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
         {{-- JUMAT --}}
         <div style="background: #fff; padding: 32px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.02); text-align: center;">
             <div style="width: 60px; height: 60px; background: #fff7ed; color: #c65d2e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 1.5rem; font-weight: 900;">J</div>
             <h4 style="font-size: 1.4rem; font-weight: 800; color: #111827; margin-bottom: 6px;">Jumat Siang</h4>
-            <span style="font-weight: 700; color: #c65d2e; font-size: 0.9rem; margin-bottom: 16px; display: block;">🕒 14:00 - 17:00 WIB</span>
-            <p style="font-size: 0.9rem; color: #6b7280; line-height: 1.6; margin-bottom: 28px;">Sesi latihan teknik dasar dan pemantapan koreografi bagi anggota tetap.</p>
+            <span style="font-weight: 700; color: #c65d2e; font-size: 0.9rem; margin-bottom: 16px; display: block;">🕒 14:00 - 16:00 WIB</span>
+            <p style="font-size: 0.9rem; color: #6b7280; line-height: 1.6; margin-bottom: 28px;">Tari Topeng Kelana</p>
             
             @php $isRegisteredJumat = $pendaftaran->where('jam_latihan', '14:00:00')->count(); @endphp
             @if($isRegisteredJumat)
@@ -32,7 +32,7 @@
             @else
                 <form action="{{ route('penjadwalan.daftar') }}" method="POST">
                     @csrf
-                    <input type="hidden" name="tarian_id" value="{{ $tarianTersedia->first()->id ?? 1 }}">
+                    <input type="hidden" name="tarian_id" value="{{ $tarianTersedia->firstWhere('nama', 'Tari Topeng Kelana')->id ?? 1 }}">
                     <input type="hidden" name="tanggal_latihan" value="{{ date('Y-m-d', strtotime('next friday')) }}">
                     <input type="hidden" name="jam_latihan" value="14:00">
                     <input type="hidden" name="catatan" value="Latihan Rutin Jumat">
@@ -44,9 +44,9 @@
         {{-- MINGGU --}}
         <div style="background: #fff; padding: 32px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.02); text-align: center;">
             <div style="width: 60px; height: 60px; background: #fff7ed; color: #c65d2e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 1.5rem; font-weight: 900;">M</div>
-            <h4 style="font-size: 1.4rem; font-weight: 800; color: #111827; margin-bottom: 6px;">Minggu Rutin</h4>
-            <span style="font-weight: 700; color: #c65d2e; font-size: 0.9rem; margin-bottom: 16px; display: block;">🕒 08:00 - 16:00 WIB</span>
-            <p style="font-size: 0.9rem; color: #6b7280; line-height: 1.6; margin-bottom: 28px;">Sesi pendalaman materi tarian tradisional secara intensif sepanjang hari.</p>
+            <h4 style="font-size: 1.4rem; font-weight: 800; color: #111827; margin-bottom: 6px;">Minggu Pagi</h4>
+            <span style="font-weight: 700; color: #c65d2e; font-size: 0.9rem; margin-bottom: 16px; display: block;">🕒 08:00 - 10:00 WIB</span>
+            <p style="font-size: 0.9rem; color: #6b7280; line-height: 1.6; margin-bottom: 28px;">Tari Topeng Kelana dan Gamelan</p>
             
             @php $isRegisteredMinggu = $pendaftaran->where('jam_latihan', '08:00:00')->count(); @endphp
             @if($isRegisteredMinggu)
@@ -54,7 +54,7 @@
             @else
                 <form action="{{ route('penjadwalan.daftar') }}" method="POST">
                     @csrf
-                    <input type="hidden" name="tarian_id" value="{{ $tarianTersedia->first()->id ?? 1 }}">
+                    <input type="hidden" name="tarian_id" value="{{ $tarianTersedia->firstWhere('nama', 'Tari Topeng Kelana')->id ?? 1 }}">
                     <input type="hidden" name="tanggal_latihan" value="{{ date('Y-m-d', strtotime('next sunday')) }}">
                     <input type="hidden" name="jam_latihan" value="08:00">
                     <input type="hidden" name="catatan" value="Latihan Rutin Minggu">
@@ -141,6 +141,18 @@
     @keyframes modalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     
     .time-slot:hover { border-color: #c65d2e; color: #c65d2e; background: #fffcfb; }
+
+    @media (max-width: 1023px) {
+        #daftarModalContent {
+            max-height: calc(100dvh - 40px);
+            overflow-y: auto !important;
+        }
+    }
+    @media (max-width: 480px) {
+        .schedule-routine-grid { grid-template-columns: minmax(0, 1fr) !important; }
+        #daftarModalContent > div,
+        #daftarModalContent > form { padding: 20px !important; }
+    }
 </style>
 
 <script>

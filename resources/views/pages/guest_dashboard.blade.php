@@ -17,7 +17,7 @@
                     <div class="guest-stats">
                         <div class="stat-item">
                             <span class="stat-value">{{ $totalSesiBooking }}</span>
-                            <span class="stat-label">Total Sesi</span>
+                            <span class="stat-label">Sesi Aktif yang Sudah Dimulai</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-value">{{ $totalHadir }}</span>

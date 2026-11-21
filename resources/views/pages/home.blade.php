@@ -18,7 +18,7 @@
             <div class="hero-img-wrapper">
                 @php $heroFoto = $galeri->where('seksi','hero')->first(); @endphp
                 @if($heroFoto)
-                    <img src="{{ asset('storage/'.$heroFoto->file) }}"
+                    <img src="{{ asset('storage/'.$heroFoto->file) }}?v=2"
                          alt="{{ $profil->nama_sanggar }}"
                          class="hero-placeholder">
                 @else
@@ -69,12 +69,12 @@
         <div class="about-image">
             @php $aboutFoto = $galeri->where('seksi','about')->first(); @endphp
             @if($aboutFoto)
-                <img src="{{ asset('storage/'.$aboutFoto->file) }}"
+                <img src="{{ asset('storage/'.$aboutFoto->file) }}?v=2"
                      alt="Tentang {{ $profil->nama_sanggar }}"
                      class="about-placeholder"
                      style="object-fit:cover;width:100%;border-radius:var(--radius)">
             @elseif($profil->foto_sejarah)
-                <img src="{{ asset('storage/'.$profil->foto_sejarah) }}"
+                <img src="{{ asset('storage/'.$profil->foto_sejarah) }}?v=2"
                      alt="Tentang {{ $profil->nama_sanggar }}"
                      class="about-placeholder"
                      style="object-fit:cover;width:100%;border-radius:var(--radius)">
@@ -102,8 +102,8 @@
 <section class="topeng-section" style="padding: 80px 0; background: linear-gradient(to bottom, var(--white), var(--bg-soft)); overflow: hidden;">
     <div class="container">
         <div class="section-header" style="text-align: center; margin-bottom: 50px;">
-            <span class="badge">Koleksi Tradisional</span>
-            <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--dark); margin-top: 10px;">Pancawanda: 5 Karakter Topeng</h2>
+            <span class="badge">Koleksi Topeng</span>
+            <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--dark); margin-top: 10px;">Panca Wanda: 5 Karakter Topeng</h2>
             <p style="color: var(--muted); max-width: 600px; margin: 15px auto 0;">Mengenal lima watak manusia melalui warna dan rupa topeng tradisional Indramayu.</p>
         </div>
 
@@ -116,7 +116,7 @@
                     <div class="topeng-front" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 24px; background: white; box-shadow: 0 15px 35px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; border: 1px solid rgba(0,0,0,0.03);">
                         <div class="topeng-img-wrap" style="width: 160px; height: 160px; margin-bottom: 20px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); transition: transform 0.5s;">
                             @if($t->foto)
-                                <img src="{{ asset('storage/'.$t->foto) }}" alt="{{ $t->nama }}" style="width: 100%; height: 100%; object-fit: contain;">
+                                <img src="{{ asset('storage/'.$t->foto) }}?v=2" alt="{{ $t->nama }}" style="width: 100%; height: 100%; object-fit: contain;">
                             @else
                                 <div style="width: 100%; height: 100%; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -163,7 +163,6 @@
 {{-- DIGITAL ARCHIVE --}}
 <section class="archive-section" style="padding: 60px 0; overflow: hidden; background: var(--bg-soft);">
     <div class="container">
-        <span class="badge">Digital Archive</span>
         <div class="archive-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h2 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--dark);">Arsip Digital</h2>
             <a href="{{ route('digital-archive') }}" class="btn-lihat-sm">Lihat Semua →</a>
@@ -227,7 +226,7 @@
                 @for($k=0; $k<2; $k++)
                     @foreach($displayFotos->take(8) as $foto)
                     <a href="{{ route('digital-archive') }}" class="marquee-item">
-                        <img src="{{ asset('storage/'.$foto->file) }}"
+                        <img src="{{ asset('storage/'.$foto->file) }}?v=2"
                              alt="{{ $foto->judul ?? 'Arsip Digital' }}"
                              style="width:100%;height:100%;object-fit:cover;">
                     </a>
@@ -249,11 +248,10 @@
     <div class="container">
         <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px;">
             <div>
-                <span class="badge" style="margin-bottom:8px; display:inline-block;">Kegiatan Terbaru</span>
                 <h2 class="section-title" style="margin-bottom: 0; font-family: var(--font-display); font-weight: 700; color: var(--dark);">Dokumentasi Kegiatan</h2>
             </div>
             <a href="{{ route('galeri.frontend.index', 'dokumentasi') }}" class="btn-lihat-sm" style="display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 12px rgba(198,93,46,0.2);">
-                Lihat Semua Galeri
+                Lihat Semua
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </a>
         </div>
@@ -312,16 +310,16 @@
 
             @if($dokFotos->count() >= 4)
                 <a href="{{ route('galeri.frontend.index', 'dokumentasi') }}" class="bento-item bento-1">
-                    <img src="{{ asset('storage/' . $dokFotos[0]->file) }}" alt="Dokumentasi 1">
+                    <img src="{{ asset('storage/' . $dokFotos[0]->file) }}?v=2" alt="Dokumentasi 1">
                 </a>
                 <a href="{{ route('galeri.frontend.index', 'dokumentasi') }}" class="bento-item bento-2">
-                    <img src="{{ asset('storage/' . $dokFotos[1]->file) }}" alt="Dokumentasi 2">
+                    <img src="{{ asset('storage/' . $dokFotos[1]->file) }}?v=2" alt="Dokumentasi 2">
                 </a>
                 <a href="{{ route('galeri.frontend.index', 'dokumentasi') }}" class="bento-item bento-3">
-                    <img src="{{ asset('storage/' . $dokFotos[2]->file) }}" alt="Dokumentasi 3">
+                    <img src="{{ asset('storage/' . $dokFotos[2]->file) }}?v=2" alt="Dokumentasi 3">
                 </a>
                 <a href="{{ route('galeri.frontend.index', 'dokumentasi') }}" class="bento-item bento-4">
-                    <img src="{{ asset('storage/' . $dokFotos[3]->file) }}" alt="Dokumentasi 4">
+                    <img src="{{ asset('storage/' . $dokFotos[3]->file) }}?v=2" alt="Dokumentasi 4">
                 </a>
             @else
                 {{-- Fallback placeholders if less than 4 photos --}}

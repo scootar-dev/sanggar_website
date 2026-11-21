@@ -24,7 +24,8 @@ class PendaftaranTari extends Model
     ];
 
     protected $casts = [
-        'tanggal_daftar' => 'date',
+        'tanggal_daftar' => 'datetime',
+        'tanggal_latihan' => 'date',
     ];
 
     // ── Relasi ────────────────────────────────────────────────

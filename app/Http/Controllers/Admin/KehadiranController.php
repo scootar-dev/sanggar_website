@@ -219,9 +219,12 @@ class KehadiranController extends Controller
             $title = "Laporan Pengunjung - " . $bulan;
             $view  = 'admin.kehadiran.pdf_pengunjung';
         } else {
-            $data = Kehadiran::with(['user', 'jadwal', 'tarian'])
-                ->whereRaw("DATE_FORMAT(tanggal, '%Y-%m') = ?", [$bulan])
-                ->orderBy('tanggal', 'desc')->get();
+            $query = Kehadiran::with(['user', 'jadwal', 'tarian'])
+                ->whereRaw("DATE_FORMAT(tanggal, '%Y-%m') = ?", [$bulan]);
+            if ($request->filled('jadwal_id')) $query->where('jadwal_id', $request->jadwal_id);
+            if ($request->filled('tarian_id')) $query->where('tarian_id', $request->tarian_id);
+            if ($request->filled('tipe')) $query->whereHas('user', fn ($q) => $q->where('tipe_anggota', $request->tipe));
+            $data = $query->orderBy('tanggal', 'desc')->get();
             $title = "Laporan Kehadiran Anggota - " . $bulan;
             $view  = 'admin.kehadiran.pdf_anggota';
         }

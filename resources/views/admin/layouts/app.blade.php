@@ -34,6 +34,10 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 Dashboard
             </a>
+            <a href="{{ route('admin.backup.index') }}" class="nav-item {{ request()->routeIs('admin.backup*') ? 'active' : '' }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Backup &amp; Restore
+            </a>
         </div>
         <div class="nav-group">
             <span class="nav-label">KONTEN WEB</span>
@@ -74,11 +78,21 @@
             <a href="{{ route('admin.anggota.index') }}" class="nav-item {{ request()->routeIs('admin.anggota*') ? 'active' : '' }}">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 Anggota
-                <span class="nav-badge">{{ \App\Models\User::where('role','anggota')->count() }}</span>
+                <span class="nav-badge">{{ \App\Models\User::anggotaVerified()->count() }}</span>
             </a>
             <a href="{{ route('admin.rapor.index') }}" class="nav-item {{ request()->routeIs('admin.rapor*') ? 'active' : '' }}">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                 Rapor Pagelaran
+            </a>
+            <a href="{{ route('admin.event.index') }}#midhang" class="nav-item {{ request()->routeIs('admin.ujian*') ? 'active' : '' }}" style="{{ request()->routeIs('admin.ujian*') ? 'background:rgba(79,70,229,.15);color:#818cf8;' : '' }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                Ujian Midhang Sore
+                @php
+                    $pendingUjian = \App\Models\UjianPendaftaran::where('status', 'menunggu')->count();
+                @endphp
+                @if($pendingUjian > 0)
+                <span class="nav-badge" style="background:#4f46e5;">{{ $pendingUjian }}</span>
+                @endif
             </a>
             <a href="{{ route('admin.booking.index') }}" class="nav-item {{ request()->routeIs('admin.booking*') ? 'active' : '' }}">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -120,6 +134,30 @@
             </form>
         </div>
     </nav>
+    <script>
+    (function() {
+        var sb = document.getElementById('sidebar');
+        if (!sb) return;
+        var saved = sessionStorage.getItem('sidebar_scroll_pos');
+        if (saved !== null) {
+            sb.scrollTop = parseInt(saved, 10);
+        } else {
+            var active = sb.querySelector('.nav-item.active');
+            if (active) {
+                sb.scrollTop = active.offsetTop - (sb.clientHeight / 2) + (active.clientHeight / 2);
+            }
+        }
+        sb.addEventListener('click', function(e) {
+            var link = e.target.closest('a.nav-item');
+            if (link) {
+                sessionStorage.setItem('sidebar_scroll_pos', sb.scrollTop);
+            }
+        });
+        sb.addEventListener('scroll', function() {
+            sessionStorage.setItem('sidebar_scroll_pos', sb.scrollTop);
+        }, { passive: true });
+    })();
+    </script>
 </aside>
 
 {{-- ── OVERLAY ── --}}

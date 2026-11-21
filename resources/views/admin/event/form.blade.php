@@ -16,7 +16,7 @@
 @csrf
 @if($mode==='edit') @method('PUT') @endif
 
-<div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start">
+<div class="admin-responsive-grid" style="display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start">
 
     {{-- LEFT --}}
     <div style="display:flex;flex-direction:column;gap:20px">

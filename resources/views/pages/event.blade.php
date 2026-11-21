@@ -1,13 +1,19 @@
 @extends('layouts.app')
-@section('title', 'Event & Workshop Mendatang')
+@section('title', 'Event & Pentas Mendatang')
 @section('content')
+@if(session('ticket_url'))
+<div class="container" style="padding:20px" role="status">
+    <p>Simpan tautan ini untuk mengunduh tiket setelah pembayaran diverifikasi.</p>
+    <a class="btn btn-primary" href="{{ session('ticket_url') }}">Unduh E-Tiket</a>
+</div>
+@endif
 
 {{-- HERO --}}
 <section class="page-hero">
     <div class="page-hero__bg"></div>
     <div class="container page-hero__inner">
         <span class="badge">Aktivitas Kami</span>
-        <h1 class="page-hero__title">Event &amp; Workshop Mendatang</h1>
+        <h1 class="page-hero__title">Event &amp; Pentas Mendatang</h1>
         <p class="page-hero__sub">Ikuti berbagai kegiatan, kelas khusus, dan workshop seni yang diselenggarakan di Sanggar Mulya Bhakti.</p>
         <div class="page-hero__nav">
             <a href="#midhang_sore" class="phero-nav-link">Midhang Sore</a>
@@ -35,7 +41,11 @@
 
             <div id="modalHargaWrap" style="display: none; margin-bottom: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;">
                 <strong style="display: block; color: #d97706; margin-bottom: 5px;">HTM / Harga Tiket: <span id="modalHargaValue"></span></strong>
-                <p style="margin: 0; font-size: 0.85rem; color: #92400e;">Silakan transfer ke <strong>BCA 1234567890 a.n Sanggar Mulya Bhakti</strong> dan lampirkan buktinya di bawah ini.</p>
+                @if(config('payments.bank_name') && config('payments.account_number') && config('payments.account_holder'))
+                <p style="margin: 0; font-size: 0.85rem; color: #92400e;">Silakan transfer ke <strong>{{ config('payments.bank_name') }} {{ config('payments.account_number') }} a.n {{ config('payments.account_holder') }}</strong> dan lampirkan buktinya di bawah ini.</p>
+                @else
+                <p>Hubungi admin untuk informasi rekening resmi dan konfirmasi pembayaran.</p>
+                @endif
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -63,6 +73,62 @@
     </div>
 </div>
 
+{{-- MODAL DAFTAR UJIAN MIDHANG SORE --}}
+@auth
+@if(Auth::user()->tipe_anggota === 'anggota_tetap')
+<div id="modalDaftarUjian" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px);">
+    <div style="background: white; width: 100%; max-width: 500px; border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <div style="background: #4f46e5; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: white; margin: 0; font-size: 1.2rem; font-weight: 700;">📝 Formulir Ujian Midhang Sore</h3>
+            <button onclick="tutupModalUjian()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+        <form action="{{ route('ujian.daftar') }}" method="POST" style="padding: 24px;">
+            @csrf
+            <input type="hidden" name="event_id" id="modalUjianEventId">
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 0.85rem; color: #475569; margin-bottom: 5px;">Event Ujian:</label>
+                <div id="modalUjianEventName" style="font-weight: 800; color: #1e1b4b; font-size: 1.15rem;"></div>
+            </div>
+
+            <div style="margin-bottom: 20px; padding: 12px 16px; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 10px;">
+                @php
+                    $totalSesi = \App\Models\Kehadiran::where('user_id', Auth::id())->count();
+                    $totalHadir = \App\Models\Kehadiran::where('user_id', Auth::id())->where('status', 'hadir')->count();
+                    $persenKehadiran = $totalSesi > 0 ? round(($totalHadir / $totalSesi) * 100, 2) : 0;
+                @endphp
+                <strong style="display: block; color: #0369a1; font-size: 0.875rem;">Kehadiran Anda Saat Ini: {{ $persenKehadiran }}%</strong>
+                @if($persenKehadiran >= 75)
+                    <p style="margin: 3px 0 0 0; font-size: 0.8rem; color: #0284c7;">✓ Memenuhi syarat (Minimal 75%).</p>
+                @else
+                    <p style="margin: 3px 0 0 0; font-size: 0.8rem; color: #b91c1c; font-weight: 700;">⚠️ Belum memenuhi syarat minimal 75%.</p>
+                @endif
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: #334155;">Tarian yang Diujikan *</label>
+                <select name="tarian_id" required style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background-color: #fff; color: #334155; font-size: 0.9rem; outline: none;">
+                    <option value="" disabled selected>-- Pilih Tarian --</option>
+                    @foreach($tarianList as $t)
+                        <option value="{{ $t->id }}">{{ $t->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: #334155;">Catatan Tambahan (Opsional)</label>
+                <textarea name="catatan" rows="3" placeholder="Misal: Sudah mempelajari materi tarian ini selama 6 bulan..." style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; resize: none; outline: none;"></textarea>
+            </div>
+
+            <button type="submit" class="btn-cta" style="width: 100%; border-radius: 8px; background: #4f46e5; border: none; color: white; padding: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s;" {{ $persenKehadiran < 75 ? 'disabled' : '' }}>
+                Kirim Pendaftaran Ujian 🚀
+            </button>
+        </form>
+    </div>
+</div>
+@endif
+@endauth
+
 <script>
     function bukaModalDaftar(id, nama, isBerbayar, harga) {
         document.getElementById('modalEventId').value = id;
@@ -88,6 +154,16 @@
 
     function tutupModalDaftar() {
         document.getElementById('modalDaftarEvent').style.display = 'none';
+    }
+
+    function bukaModalUjian(id, nama) {
+        document.getElementById('modalUjianEventId').value = id;
+        document.getElementById('modalUjianEventName').innerText = nama;
+        document.getElementById('modalDaftarUjian').style.display = 'flex';
+    }
+
+    function tutupModalUjian() {
+        document.getElementById('modalDaftarUjian').style.display = 'none';
     }
 </script>
 
@@ -194,12 +270,20 @@
                         <textarea name="catatan_pengaju" rows="2" placeholder="Ceritakan kebutuhan panggung / peralatan..." style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; resize: vertical;"></textarea>
                     </div>
 
-                    <div style="margin-bottom: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;">
-                        <strong style="color: #d97706; font-size: 0.85rem;">8. Tanggal Pelaksanaan</strong>
-                        <p style="margin: 0; font-size: 0.8rem; color: #92400e; margin-top: 5px;">Tanggal event akan ditentukan kemudian oleh pihak Sanggar Mulya Bhakti setelah proses diskusi dan kurasi selesai.</p>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">8. Bulan Pelaksanaan *</label>
+                        <select name="bulan_pelaksanaan" required style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background-color: #fff; color: #334155; font-size: 0.9rem;">
+                            <option value="" disabled selected>-- Pilih Bulan Pelaksanaan --</option>
+                            <option value="Juli">Juli</option>
+                            <option value="Desember">Desember</option>
+                        </select>
                     </div>
 
-                    <button type="submit" class="btn-cta" style="width: 100%; border-radius: 8px; font-size: 1rem; background: #4338ca;">Kirim Pengajuan 🚀</button>
+                    <div style="margin-bottom: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;">
+                        <strong style="color: #d97706; font-size: 0.85rem;">*Note</strong>
+                        <p style="margin: 0; font-size: 0.8rem; color: #92400e; margin-top: 5px;">Tanggal spesifik event akan ditentukan kemudian oleh pihak Sanggar Mulya Bhakti setelah proses diskusi dan kurasi selesai.</p>
+                    </div>
+                    <button type="submit" class="btn-cta" style="width:100%; border-radius:8px; font-size:1rem; background:#C65D2E; color:#fff;">Kirim Pengajuan 🚀</button>
                 </form>
             </div>
         </div>

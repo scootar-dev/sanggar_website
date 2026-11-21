@@ -7,23 +7,31 @@ class EventController extends Controller {
         $midhang = Event::where('status', '!=', 'pending_approval')->where('status', '!=', 'selesai')->whereDate('tanggal', '>=', now())->where('kategori', 'midhang_sore')->orderBy('tanggal')->get();
         $studi = Event::where('status', '!=', 'pending_approval')->where('status', '!=', 'selesai')->whereDate('tanggal', '>=', now())->where('kategori', 'studi_budaya')->orderBy('tanggal')->get();
         $pagelaran = Event::where('status', '!=', 'pending_approval')->where('status', '!=', 'selesai')->whereDate('tanggal', '>=', now())->where('kategori', 'pagelaran')->orderBy('tanggal')->get();
-        return view('pages.event', compact('midhang', 'studi', 'pagelaran'));
+        $tarianList = \App\Models\Tarian::where('aktif', true)->orderBy('nama')->get();
+        return view('pages.event', compact('midhang', 'studi', 'pagelaran', 'tarianList'));
     }
 
     public function ajukan(\Illuminate\Http\Request $request) {
         $validated = $request->validate([
-            'nama_pengaju'    => 'required|string|max:255',
-            'foto_pengaju'    => 'required|image|max:3072',
-            'no_hp_pengaju'   => 'required|string|max:20',
-            'nama'            => 'required|string|max:255',
-            'portofolio_link' => 'nullable|url',
-            'sinopsis_link'   => 'nullable|url',
-            'catatan_pengaju' => 'nullable|string',
+            'nama_pengaju'      => 'required|string|max:255',
+            'foto_pengaju'      => 'required|image|max:3072',
+            'no_hp_pengaju'     => 'required|string|max:20',
+            'nama'              => 'required|string|max:255',
+            'portofolio_link'   => 'nullable|url',
+            'sinopsis_link'     => 'nullable|url',
+            'catatan_pengaju'   => 'nullable|string',
+            'bulan_pelaksanaan' => 'required|string|in:Juli,Desember',
         ]);
 
         if ($request->hasFile('foto_pengaju')) {
             $validated['foto_pengaju'] = $request->file('foto_pengaju')->store('pengaju', 'public');
         }
+
+        $bulan = $request->input('bulan_pelaksanaan');
+        $catatan = $request->input('catatan_pengaju');
+        $validated['catatan_pengaju'] = "Bulan Pilihan: " . $bulan . ($catatan ? "\nCatatan: " . $catatan : "");
+
+        unset($validated['bulan_pelaksanaan']);
 
         $validated['tanggal'] = now()->addMonth(); // Admin will edit this later
         $validated['status'] = 'pending_approval';
@@ -46,8 +54,9 @@ class EventController extends Controller {
         ]);
 
         $event = Event::findOrFail($request->event_id);
+        abort_unless($event->status === 'akan_datang' && $event->tanggal->endOfDay()->isFuture(), 422, 'Pendaftaran event sudah ditutup.');
         
-        $validated['order_id'] = 'EVT-' . time() . '-' . rand(100, 999);
+        $validated['order_id'] = 'EVT-' . \Illuminate\Support\Str::uuid();
         
         if ($request->hasFile('bukti_transfer')) {
             $validated['bukti_transfer'] = $request->file('bukti_transfer')->store('bukti_transfer', 'public');
@@ -58,18 +67,27 @@ class EventController extends Controller {
 
         \App\Models\PesertaEvent::create($validated);
 
-        return back()->with('success', 'Pendaftaran berhasil dikirim! E-Tiket atau konfirmasi selanjutnya akan dikirim ke WhatsApp Anda oleh Admin setelah dicek.');
+        return back()->with('success', 'Pendaftaran berhasil. Simpan tautan tiket; tiket berbayar dapat diunduh setelah pembayaran diverifikasi admin.')
+            ->with('ticket_url', route('event.tiket', $validated['order_id']));
     }
 
     public function midtransWebhook(\Illuminate\Http\Request $request) {
+        $request->validate([
+            'order_id' => 'required|string',
+            'status_code' => 'required|string',
+            'gross_amount' => 'required|string',
+            'signature_key' => 'required|string',
+            'transaction_status' => 'required|string',
+        ]);
         $serverKey = config('midtrans.server_key');
+        abort_unless(is_string($serverKey) && $serverKey !== '', 503);
         $hashed = hash("sha512", $request->order_id.$request->status_code.$request->gross_amount.$serverKey);
         
-        if ($hashed == $request->signature_key) {
+        if (hash_equals($hashed, $request->signature_key)) {
             $peserta = \App\Models\PesertaEvent::where('order_id', $request->order_id)->first();
             
             if ($peserta) {
-                if ($request->transaction_status == 'capture' || $request->transaction_status == 'settlement') {
+                if (($request->transaction_status === 'capture' && $request->fraud_status === 'accept') || $request->transaction_status === 'settlement') {
                     $peserta->update(['status_pembayaran' => 'lunas']);
                     // Kirim WA Otomatis
                 } elseif ($request->transaction_status == 'cancel' || $request->transaction_status == 'deny' || $request->transaction_status == 'expire') {

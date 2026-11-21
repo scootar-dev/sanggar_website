@@ -9,7 +9,7 @@
         <p style="color:var(--muted)">Data absensi lengkap periode {{ \Carbon\Carbon::parse($bulan)->isoFormat('MMMM YYYY') }}</p>
     </div>
     <div style="display:flex;gap:12px">
-        <a href="{{ route('admin.kehadiran.pdf', ['type' => 'anggota', 'bulan' => $bulan]) }}" class="btn btn-primary" style="background:var(--dark);color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;display:flex;align-items:center;gap:8px">
+        <a href="{{ route('admin.kehadiran.pdf', array_merge(request()->only('jadwal_id', 'tarian_id', 'tipe'), ['type' => 'anggota', 'bulan' => $bulan])) }}" class="btn btn-primary" style="background:var(--dark);color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;display:flex;align-items:center;gap:8px">
             📥 Export PDF
         </a>
         <a href="{{ route('admin.kehadiran.laporan') }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700">← Kembali</a>

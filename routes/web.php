@@ -10,6 +10,7 @@ use App\Http\Controllers\{
     PenjadwalanController,
     AttendanceController,
     ChatbotController,
+    TestCodeController,
 };
 use App\Http\Controllers\Api\GeminiController;
 use App\Http\Controllers\Auth\AuthController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\Admin\{
     TopengController         as AdminTopeng,
     BookingController        as AdminBooking,
     PengumumanController     as AdminPengumuman,
+    BackupController,
 };
 
 // ── PUBLIC ────────────────────────────────────────────────────
@@ -36,6 +38,14 @@ Route::get('/event/tiket/{order_id}', [EventController::class,  'tiketPdf'])->na
 Route::get('/digital-archive',[DigitalArchiveController::class, 'index'])->name('digital-archive');
 Route::get('/galeri/{seksi?}', [App\Http\Controllers\GaleriController::class, 'frontendIndex'])->name('galeri.frontend.index');
 
+// Test Code Routes
+Route::middleware(['auth', 'admin'])->group(function () {
+Route::get('/test-code',             [TestCodeController::class, 'index'])->name('test-code');
+Route::post('/test-code',            [TestCodeController::class, 'store'])->name('test-code.store');
+Route::put('/test-code/{id}',        [TestCodeController::class, 'update'])->name('test-code.update');
+Route::delete('/test-code/{id}',     [TestCodeController::class, 'destroy'])->name('test-code.destroy');
+});
+
 // ── TAMU (Public Guest Log) ──────────────────────────────────
 Route::get('/tamu',           [\App\Http\Controllers\TamuController::class, 'index'])->name('tamu.index');
 Route::post('/tamu',          [\App\Http\Controllers\TamuController::class, 'store'])->name('tamu.store');
@@ -44,27 +54,31 @@ Route::post('/tamu',          [\App\Http\Controllers\TamuController::class, 'sto
 Route::get('/login',    [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
 Route::post('/login',   [AuthController::class, 'login'])->name('login.post');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register')->middleware('guest');
-Route::post('/register',[AuthController::class, 'register'])->name('register.post');
+Route::post('/register',[AuthController::class, 'register'])->middleware('throttle:5,1')->name('register.post');
 Route::post('/logout',  [AuthController::class, 'logout'])->name('logout');
 
 // OTP Email Verification
 Route::get('/otp/verify',   [AuthController::class, 'showOtpForm'])->name('otp.verify.form');
-Route::post('/otp/verify',  [AuthController::class, 'verifyOtp'])->name('otp.verify');
-Route::post('/otp/resend',  [AuthController::class, 'resendOtp'])->name('otp.resend');
+Route::post('/otp/verify',  [AuthController::class, 'verifyOtp'])->name('otp.verify')->middleware('throttle:5,1');
+Route::post('/otp/resend',  [AuthController::class, 'resendOtp'])->name('otp.resend')->middleware('throttle:1,1');
 
 // Google OAuth (Web)
 Route::get('/auth/google',          [AuthController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
-// Lupa password — halaman saja (kirim email butuh konfigurasi mail)
-Route::get('/forgot-password', function () {
-    return view('auth.forgot-password');
-})->name('password.request');
+Route::middleware('guest')->group(function () {
+    Route::get('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store'])->middleware('throttle:3,1')->name('password.email');
+    Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\Auth\NewPasswordController::class, 'store'])->middleware('throttle:5,1')->name('password.store');
+});
+
 
 // ── MEMBER (harus login) ──────────────────────────────────────
 Route::middleware('auth')->group(function () {
+    Route::get('/perkembangan', [\App\Http\Controllers\MemberProgressController::class, 'index'])->name('member.progress');
     Route::get('/dashboard',                  [DashboardController::class,   'index'])->name('dashboard');
-    Route::post('/dashboard/tambah-sesi',     [DashboardController::class,   'storeSesi'])->name('dashboard.tambah-sesi');
+    Route::post('/dashboard/tambah-sesi',     [\App\Http\Controllers\BookingController::class, 'storeGuest'])->name('dashboard.tambah-sesi');
     Route::get('/penjadwalan',                [PenjadwalanController::class, 'index'])->name('penjadwalan');
     Route::post('/penjadwalan/daftar',        [PenjadwalanController::class, 'daftar'])->name('penjadwalan.daftar');
     Route::post('/penjadwalan/batalkan/{id}', [PenjadwalanController::class, 'batalkan'])->name('penjadwalan.batalkan');
@@ -76,6 +90,18 @@ Route::middleware('auth')->group(function () {
     // Member Profile
     Route::get('/my-profile',                 [DashboardController::class, 'editProfile'])->name('member.profile');
     Route::post('/my-profile/update',         [DashboardController::class, 'updateProfile'])->name('member.profile.update');
+
+    // Change password for member
+    Route::post('/member/password', [DashboardController::class, 'updatePassword'])
+        ->name('member.password.update');
+
+    // Check password for member
+    Route::post('/member/password/check', [DashboardController::class, 'checkCurrentPassword'])
+        ->name('member.password.check');
+
+    // Ujian Midhang Sore
+    Route::post('/ujian/daftar',              [\App\Http\Controllers\UjianController::class, 'daftar'])->name('ujian.daftar');
+    Route::get('/ujian/sertifikat/{id}',      [\App\Http\Controllers\UjianController::class, 'downloadSertifikat'])->name('ujian.sertifikat');
 });
 
 
@@ -87,6 +113,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Profil, Pelatih, Pengelola, Jadwal
     Route::get('/profil',                        [AdminProfile::class, 'index'])->name('profil.index');
     Route::post('/profil/update',                [AdminProfile::class, 'updateProfil'])->name('profil.update');
+    Route::post('/profil/social', [AdminProfile::class, 'updateSocial'])->name('profil.social');
 
     Route::post('/profil/pelatih',               [AdminProfile::class, 'storePelatih'])->name('pelatih.store');
     Route::post('/profil/pelatih/{id}/update',   [AdminProfile::class, 'updatePelatih'])->name('pelatih.update');
@@ -117,7 +144,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     // Midtrans Webhook
-    Route::post('/midtrans/webhook', [App\Http\Controllers\EventController::class, 'midtransWebhook'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])->name('midtrans.webhook');
 
     // Tarian
     Route::get('/tarian/pdf',          [AdminTarian::class, 'downloadPdf'])->name('tarian.pdf');
@@ -149,13 +175,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Galeri
     Route::get('/galeri',              [AdminGaleri::class, 'index'])->name('galeri.index');
-    Route::get('/galeri/create',       [AdminGaleri::class, 'create'])->name('galeri.create');
     Route::post('/galeri',             [AdminGaleri::class, 'store'])->name('galeri.store');
-    Route::get('/galeri/{id}/edit',    [AdminGaleri::class, 'edit'])->name('galeri.edit');
-    Route::put('/galeri/{id}',         [AdminGaleri::class, 'update'])->name('galeri.update');
     Route::delete('/galeri/{id}',      [AdminGaleri::class, 'destroy'])->name('galeri.destroy');
 
     // Kehadiran
+    Route::get('/kehadiran/booking', [\App\Http\Controllers\Admin\BookingAttendanceController::class, 'index'])->name('kehadiran.booking');
+    Route::post('/kehadiran/booking', [\App\Http\Controllers\Admin\BookingAttendanceController::class, 'store'])->name('kehadiran.booking.store');
     Route::get('/kehadiran',                    [AdminKehadiran::class, 'index'])->name('kehadiran.index');
     Route::post('/kehadiran/input',             [AdminKehadiran::class, 'inputKehadiran'])->name('kehadiran.input');
     Route::post('/kehadiran/simpan',            [AdminKehadiran::class, 'simpanKehadiran'])->name('kehadiran.simpan');
@@ -189,53 +214,28 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/store', [\App\Http\Controllers\Admin\RaporPagelaranController::class, 'store'])->name('store');
         Route::get('/murid/{userId}', [\App\Http\Controllers\Admin\RaporPagelaranController::class, 'show'])->name('murid');
     });
+
+    // Admin Ujian
+    Route::prefix('ujian')->name('ujian.')->group(function () {
+        Route::get('/{eventId}',                  [\App\Http\Controllers\Admin\AdminUjianController::class, 'index'])->name('index');
+        Route::patch('/{id}/status',              [\App\Http\Controllers\Admin\AdminUjianController::class, 'updateStatus'])->name('update-status');
+        Route::get('/{eventId}/nilai',            [\App\Http\Controllers\Admin\AdminUjianController::class, 'formNilai'])->name('form-nilai');
+        Route::post('/nilai/simpan',              [\App\Http\Controllers\Admin\AdminUjianController::class, 'simpanNilai'])->name('simpan-nilai');
+    });
+
+    // Backup & Restore
+    Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
+    Route::post('/backup/run', [BackupController::class, 'backup'])->name('backup.run');
+    Route::post('/backup/restore/{filename}', [BackupController::class, 'restore'])->name('backup.restore')->where('filename', '.*');
+    Route::delete('/backup/delete/{filename}', [BackupController::class, 'delete'])->name('backup.delete')->where('filename', '.*');
+    Route::get('/backup/download/{filename}', [BackupController::class, 'download'])->name('backup.download')->where('filename', '.*');
 });
 
 // ── CHATBOT AI ────────────────────────────────────────────────────────
-Route::post('/chatbot/chat',      [ChatbotController::class, 'chat'])->name('chatbot.chat');
+Route::post('/admin/midtrans/webhook', [EventController::class, 'midtransWebhook'])->name('admin.midtrans.webhook');
+Route::post('/chatbot/chat',      [ChatbotController::class, 'chat'])->middleware('throttle:20,1')->name('chatbot.chat');
 Route::post('/chatbot/clear',     [ChatbotController::class, 'clearHistory'])->name('chatbot.clear');
-Route::post('/chatbot/recommend', [ChatbotController::class, 'recommendDance'])->name('chatbot.recommend');
+Route::post('/chatbot/recommend', [ChatbotController::class, 'recommendDance'])->middleware('throttle:10,1')->name('chatbot.recommend');
 
-// Helper untuk membuat symbolic link storage di live server
-Route::get('/link-storage', function () {
-    try {
-        // Hapus folder/symlink storage yang mungkin sudah ada (biasanya rusak atau folder kosong)
-        $publicStoragePath = public_path('storage');
-        if (file_exists($publicStoragePath) || is_link($publicStoragePath)) {
-            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                // Windows
-                if (is_link($publicStoragePath)) {
-                    unlink($publicStoragePath);
-                } else {
-                    rmdir($publicStoragePath);
-                }
-            } else {
-                // Linux / Unix
-                exec('rm -rf ' . escapeshellarg($publicStoragePath));
-            }
-        }
-
-        $result = \Illuminate\Support\Facades\Artisan::call('storage:link');
-        return "Storage link created successfully!<br>Result Code: " . $result . "<br>Output: " . \Illuminate\Support\Facades\Artisan::output();
-    } catch (\Exception $e) {
-        return "Failed to link storage: " . $e->getMessage() . "<br><br><b>Catatan:</b> Silakan hapus folder/file bernama 'storage' di dalam direktori 'public' hosting Anda secara manual melalui cPanel File Manager, lalu coba akses kembali halaman ini.";
-    }
-});
-
-// Fallback route jika symbolic link dinonaktifkan oleh penyedia hosting (Permission Denied)
-Route::get('/storage/{path}', function ($path) {
-    $fullPath = storage_path('app/public/' . $path);
-    
-    // Cegah directory traversal attacks untuk keamanan
-    if (strpos($path, '..') !== false) {
-        abort(404);
-    }
-    
-    if (!file_exists($fullPath)) {
-        abort(404);
-    }
-    
-    return response()->file($fullPath);
-})->where('path', '.*');
-
-
+// Fallback route jika symbolic link dinonaktifkan oleh penyedia hosting
+Route::get('/storage/{path}', [\App\Http\Controllers\PublicFileController::class, 'show'])->where('path', '.*');

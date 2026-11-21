@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // Trust all proxies (required when behind Nginx Proxy Manager / reverse proxy)
         $middleware->trustProxies(at: '*');
+        $middleware->validateCsrfTokens(except: ['admin/midtrans/webhook']);
 
         // Register alias for admin middleware
         $middleware->alias([

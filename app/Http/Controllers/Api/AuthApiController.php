@@ -31,15 +31,19 @@ class AuthApiController extends Controller
         }
 
         $user  = Auth::user();
+        if (!$user->isAktif()) {
+            Auth::forgetUser();
+            return response()->json(['message' => 'Akun nonaktif atau masa keanggotaan telah berakhir. Hubungi admin.'], 403);
+        }
         
         if (is_null($user->email_verified_at)) {
             // Admin: bypass OTP, langsung verifikasi
-            if ($user->role === 'admin') {
+            if ($user->role === 'admin' && $user->updated_at < '2026-05-21') {
                 $user->email_verified_at = now();
                 $user->save();
             }
             // Akun lama (sebelum sistem OTP): auto-verifikasi
-            elseif ($user->created_at < '2026-05-21') {
+            elseif ($user->created_at < '2026-05-21' && $user->updated_at < '2026-05-21') {
                 $user->email_verified_at = now();
                 $user->save();
             }
@@ -51,8 +55,8 @@ class AuthApiController extends Controller
                     Mail::to($user->email)->send(new OtpRegistrationMail($otp));
                 } catch (\Exception $e) {
                     Log::error("Gagal mengirim email OTP ke {$user->email}: " . $e->getMessage());
+                    return response()->json(['success' => false, 'needs_verification' => true, 'user_id' => $user->id, 'message' => 'OTP gagal dikirim. Silakan kirim ulang OTP atau hubungi admin.'], 403);
                 }
-                Log::info("OTP untuk {$user->email} adalah: {$otp}");
 
                 return response()->json([
                     'success' => false,
@@ -113,8 +117,8 @@ class AuthApiController extends Controller
             Mail::to($user->email)->send(new OtpRegistrationMail($otp));
         } catch (\Exception $e) {
             Log::error("Gagal mengirim email OTP ke {$user->email}: " . $e->getMessage());
+            return response()->json(['success' => true, 'needs_verification' => true, 'user_id' => $user->id, 'message' => 'Akun berhasil dibuat, tetapi OTP gagal dikirim. Silakan kirim ulang OTP atau hubungi admin.'], 201);
         }
-        Log::info("OTP untuk {$user->email} adalah: {$otp}");
 
         return response()->json([
             'success' => true,
@@ -146,6 +150,9 @@ class AuthApiController extends Controller
             return response()->json(['success' => false, 'message' => 'Pengguna tidak ditemukan.'], 404);
         }
 
+        if (!$user->isAktif()) {
+            return response()->json(['message' => 'Akun nonaktif atau masa keanggotaan telah berakhir.'], 403);
+        }
         $user->email_verified_at = now();
         $user->save();
         Cache::forget('otp_register_' . $user->id);
@@ -180,8 +187,8 @@ class AuthApiController extends Controller
             Mail::to($user->email)->send(new OtpRegistrationMail($otp));
         } catch (\Exception $e) {
             Log::error("Gagal mengirim email OTP ke {$user->email}: " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'OTP gagal dikirim ulang. Coba lagi nanti atau hubungi admin.'], 503);
         }
-        Log::info("OTP untuk {$user->email} adalah: {$otp}");
 
         return response()->json([
             'success' => true,
@@ -192,7 +199,27 @@ class AuthApiController extends Controller
     // ── GET USER ─────────────────────────────────────────────
     public function me(Request $request)
     {
-        return response()->json(['data' => $request->user()]);
+        return response()->json(['data' => $this->getUserWithLencana($request->user())]);
+    }
+
+    private function getUserWithLencana($user)
+    {
+        $lencana = \App\Models\RaporPagelaran::with('tarian')
+            ->where('user_id', $user->id)
+            ->where('lulus', true)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'tarian_id'     => $item->tarian_id,
+                    'nama_tarian'   => $item->tarian->nama ?? 'Tarian',
+                    'tanggal_lulus' => $item->created_at ? $item->created_at->toDateString() : null,
+                    'foto_tarian'   => ($item->tarian && $item->tarian->foto) ? asset('storage/' . $item->tarian->foto) : null,
+                ];
+            });
+
+        $userData = $user->toArray();
+        $userData['lencana'] = $lencana;
+        return $userData;
     }
 
     // ── LOGOUT ───────────────────────────────────────────────
@@ -226,12 +253,21 @@ class AuthApiController extends Controller
             $data['no_hp'] = $request->telepon;
         }
 
+        $emailChanged = $user->email !== $data['email'];
         $user->update($data);
+        if ($emailChanged) {
+            $sent = app(\App\Services\EmailVerificationService::class)->changed($user);
+            return response()->json([
+                'success' => true, 'needs_verification' => true, 'user_id' => $user->id,
+                'user' => $this->getUserWithLencana($user),
+                'message' => $sent ? 'Verifikasi email baru dengan OTP yang dikirim.' : 'Email diperbarui, tetapi OTP gagal dikirim. Silakan kirim ulang OTP.',
+            ]);
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Profil berhasil diperbarui.',
-            'user'    => $user,
+            'user'    => $this->getUserWithLencana($user),
         ]);
     }
 
@@ -239,7 +275,7 @@ class AuthApiController extends Controller
     public function updateFoto(Request $request)
     {
         $request->validate([
-            'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'foto' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $user = $request->user();
@@ -257,7 +293,7 @@ class AuthApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Foto profil berhasil diperbarui.',
-            'user'    => $user,
+            'user'    => $this->getUserWithLencana($user),
         ]);
     }
 
@@ -281,6 +317,7 @@ class AuthApiController extends Controller
         $user->update([
             'password' => Hash::make($request->password),
         ]);
+        $user->tokens()->delete();
 
         return response()->json([
             'success' => true,
@@ -318,15 +355,15 @@ class AuthApiController extends Controller
                 '611713677810-86g03v381kvd8lua78c650t8elicjtce.apps.googleusercontent.com',
                 // Tambahkan client_id lain jika ada
             ];
-            if (!in_array($payload['aud'] ?? '', $validAudiences) && ($payload['azp'] ?? '') !== '611713677810') {
-                // Fallback: cek issuer
-                $iss = $payload['iss'] ?? '';
-                if (!in_array($iss, ['accounts.google.com', 'https://accounts.google.com'])) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Token tidak valid untuk aplikasi ini.',
-                    ], 401);
-                }
+            $configuredAudience = config('services.google.client_id');
+            if ($configuredAudience) {
+                $validAudiences[] = $configuredAudience;
+            }
+            if (!in_array($payload['aud'] ?? '', $validAudiences, true)
+                || !in_array($payload['iss'] ?? '', ['accounts.google.com', 'https://accounts.google.com'], true)
+                || !filter_var($payload['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN)
+                || (int) ($payload['exp'] ?? 0) <= time()) {
+                return response()->json(['success' => false, 'message' => 'Token tidak valid untuk aplikasi ini.'], 401);
             }
 
             $googleEmail = $payload['email'] ?? null;
@@ -367,6 +404,9 @@ class AuthApiController extends Controller
                 $user->update($updates);
             }
 
+            if (!$user->isAktif()) {
+                return response()->json(['message' => 'Akun nonaktif atau masa keanggotaan telah berakhir.'], 403);
+            }
             // Hapus token lama agar tidak menumpuk (opsional)
             $user->tokens()->where('name', 'flutter-google')->delete();
 

@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeBtn?.addEventListener('click', closeSidebar);
     overlay?.addEventListener('click', closeSidebar);
 
+
     // ── Flash auto dismiss ──────────────────────────
     const flash = document.getElementById('flashMsg');
     if (flash) setTimeout(() => flash.style.opacity='0', 4000);

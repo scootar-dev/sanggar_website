@@ -27,6 +27,8 @@ class User extends Authenticatable {
         'tgl_kadaluarsa',
         'catatan_keanggotaan',
         'nomor_induk',
+        'fcm_token',
+        'email_verified_at',
     ];
 
     /**
@@ -87,7 +89,8 @@ class User extends Authenticatable {
 
     public function isAktif(): bool
     {
-        return $this->status === 'aktif';
+        return $this->status === 'aktif'
+            && !($this->tipe_anggota === 'pengunjung' && $this->tgl_kadaluarsa && $this->tgl_kadaluarsa->endOfDay()->isPast());
     }
 
     public function getTipeAnggotaLabelAttribute(): string
@@ -122,6 +125,20 @@ class User extends Authenticatable {
     public function raporPagelaran()
     {
         return $this->hasMany(\App\Models\RaporPagelaran::class);
+    }
+
+    public function ujianPendaftaran()
+    {
+        return $this->hasMany(\App\Models\UjianPendaftaran::class);
+    }
+
+    public function scopeAnggotaVerified($query)
+    {
+        return $query->where('role', 'anggota')
+            ->where(function($q) {
+                $q->whereNotNull('email_verified_at')
+                  ->orWhere('created_at', '<', '2026-05-21');
+            });
     }
 
     // ─── RELATIONS ─────────────────────────────────

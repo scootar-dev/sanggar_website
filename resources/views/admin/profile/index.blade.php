@@ -17,6 +17,24 @@
 </div>
 
 {{-- TABS --}}
+<section class="card" id="media-sosial" style="margin-bottom:24px">
+    <div class="card-header"><h2 class="card-title">Media Sosial Footer</h2></div>
+    <div class="card-body">
+        <p>Atur tautan Instagram, Facebook, dan YouTube pada bagian “Ikuti Kami”. Kosongkan untuk menyembunyikan tautan.</p>
+        <form method="POST" action="{{ route('admin.profil.social') }}">
+            @csrf
+            @foreach(['instagram' => 'Instagram', 'facebook' => 'Facebook', 'youtube' => 'YouTube'] as $field => $label)
+                <div class="form-group">
+                    <label for="social-{{ $field }}">Link {{ $label }}</label>
+                    <input id="social-{{ $field }}" type="text" name="{{ $field }}" class="form-control" maxlength="255" value="{{ old($field, $profil->$field) }}" placeholder="https://www.{{ $field }}.com/{{ $field === 'youtube' ? '@' : '' }}sanggarmulyabhakti">
+                    @error($field)<p role="alert" style="color:#dc2626">{{ $message }}</p>@enderror
+                    @if($profil->socialUrl($field))<a href="{{ $profil->socialUrl($field) }}" target="_blank" rel="noopener noreferrer">Buka {{ $label }} saat ini</a>@endif
+                </div>
+            @endforeach
+            <button type="submit" class="btn btn-primary">Simpan Media Sosial Footer</button>
+        </form>
+    </div>
+</section>
 <div style="display:flex;gap:4px;border-bottom:2px solid #E8E0D8;margin-bottom:28px">
     @foreach([
         ['profil',    'Profil Sanggar'],
@@ -59,10 +77,6 @@
             <div class="form-group">
                 <label>Email</label>
                 <input type="email" name="email" class="form-control" value="{{ old('email',$profil->email) }}">
-            </div>
-            <div class="form-group">
-                <label>Instagram</label>
-                <input type="text" name="instagram" class="form-control" value="{{ old('instagram',$profil->instagram) }}">
             </div>
             <div class="form-group" style="grid-column:span 2">
                 <label>Alamat</label>

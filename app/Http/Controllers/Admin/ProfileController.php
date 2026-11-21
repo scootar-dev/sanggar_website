@@ -23,6 +23,25 @@ class ProfileController extends Controller
     }
 
     /* ── UPDATE PROFIL ────────────────────────────────────────── */
+    public function updateSocial(Request $request)
+    {
+        $data = $request->validate([
+            'instagram' => 'nullable|string|max:255',
+            'facebook' => 'nullable|string|max:255',
+            'youtube' => 'nullable|string|max:255',
+        ]);
+        $candidate = new SanggarProfile($data);
+        foreach (['instagram', 'facebook', 'youtube'] as $platform) {
+            $url = $candidate->socialUrl($platform);
+            if (!empty($data[$platform]) && !$url) {
+                throw \Illuminate\Validation\ValidationException::withMessages([$platform => 'Masukkan link resmi '.$platform.' atau username yang valid.']);
+            }
+            $data[$platform] = $url;
+        }
+        SanggarProfile::getInstance()->update($data);
+        return redirect()->route('admin.profil.index')->with('success', 'Link media sosial footer berhasil disimpan.');
+    }
+
     public function updateProfil(Request $request)
     {
         $request->validate([
@@ -37,6 +56,8 @@ class ProfileController extends Controller
             'no_hp'              => 'nullable|string|max:30',
             'email'              => 'nullable|email',
             'instagram'          => 'nullable|string',
+            'facebook'           => 'nullable|string',
+            'youtube'            => 'nullable|string',
             'jumlah_anggota'     => 'nullable|integer',
             'jumlah_penghargaan' => 'nullable|integer',
             'jumlah_event'       => 'nullable|integer',

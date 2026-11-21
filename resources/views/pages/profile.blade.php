@@ -6,7 +6,7 @@
 <section class="page-hero">
     <div class="page-hero__bg"></div>
     <div class="container page-hero__inner">
-        <span class="badge">Profile Sanggar</span>
+        <span class="badge">Profil Sanggar</span>
         <h1 class="page-hero__title">{{ $profil->nama_sanggar }}</h1>
         <p class="page-hero__sub">{{ $profil->tagline ?? 'Melestarikan warisan budaya tari tradisional Indonesia.' }}</p>
         <div class="page-hero__nav">

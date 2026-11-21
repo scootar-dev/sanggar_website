@@ -36,6 +36,7 @@ class AuthController extends Controller
         // Rate limiting: max 5 attempts per minute
         $key = 'login_attempts:' . $request->ip();
         if (RateLimiter::tooManyAttempts($key, 5)) {
+            Log::warning('security.login_throttled', ['ip' => $request->ip()]);
             $seconds = RateLimiter::availableIn($key);
             return back()
                 ->withInput($request->only('email'))
@@ -57,19 +58,20 @@ class AuthController extends Controller
         $remember    = $request->boolean('remember');
 
         if (Auth::attempt($credentials, $remember)) {
+            Log::info('security.login_success', ['user_id' => Auth::id()]);
             RateLimiter::clear($key);
             $request->session()->regenerate();
 
             $user = Auth::user();
+            if (!$user->isAktif()) {
+                Auth::logout();
+                return back()->withErrors(['email' => 'Akun nonaktif atau masa keanggotaan telah berakhir. Hubungi admin.']);
+            }
 
-            // Admin selalu bisa login tanpa OTP
-            // Akun lama (sebelum sistem OTP) juga langsung masuk & otomatis diverifikasi
+            // Akun lama (sebelum sistem OTP) otomatis diverifikasi
+            // Akun baru yang belum verifikasi: harus lewat OTP
             if (is_null($user->email_verified_at)) {
-                if ($user->role === 'admin') {
-                    // Admin: bypass OTP, langsung verifikasi
-                    $user->email_verified_at = now();
-                    $user->save();
-                } elseif ($user->created_at < '2026-05-21') {
+                if ($user->created_at < '2026-05-21' && $user->updated_at < '2026-05-21') {
                     // Akun lama (sebelum OTP system): auto-verifikasi
                     $user->email_verified_at = now();
                     $user->save();
@@ -82,8 +84,8 @@ class AuthController extends Controller
                         Mail::to($user->email)->send(new OtpRegistrationMail($otp));
                     } catch (\Exception $e) {
                         Log::error('Gagal kirim OTP: ' . $e->getMessage());
+                        return redirect()->route('otp.verify.form', ['user_id' => $user->id])->with('info', 'OTP gagal dikirim. Silakan gunakan Kirim Ulang OTP atau hubungi admin.');
                     }
-                    Log::info("OTP login untuk {$user->email}: {$otp}");
                     return redirect()->route('otp.verify.form', ['user_id' => $user->id])
                         ->with('info', 'Email Anda belum diverifikasi. OTP baru telah dikirim ke email Anda.');
                 }
@@ -95,6 +97,7 @@ class AuthController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
+        Log::notice('security.login_failed', ['ip' => $request->ip()]);
         return back()
             ->withInput($request->only('email'))
             ->withErrors(['email' => 'Email atau password salah.']);
@@ -159,7 +162,7 @@ class AuthController extends Controller
             $tglKadaluarsa   = \Carbon\Carbon::parse($tanggalTerakhir)->addDays(3)->toDateString();
         }
 
-        // 1. Create User
+        $user = \Illuminate\Support\Facades\DB::transaction(function () use ($request, $isSementara, $tglKadaluarsa) {
         $user = User::create([
             'name'               => $request->name,
             'email'              => $request->email,
@@ -172,50 +175,17 @@ class AuthController extends Controller
             'tgl_kadaluarsa'     => $tglKadaluarsa,
         ]);
 
-        // 2. If Temporary, Store Sessions with proper tarian_id
         if ($isSementara) {
             foreach ($request->sessions as $session) {
-                $tanggal = $session['tanggal'];
-                $jam     = $session['jam'];
-
-                $requestedTarianId = $request->tarian_id;
-
-                // 1. Dapatkan daftar pendaftaran aktif/pending di jam tersebut
-                $existingPendaftaran = \App\Models\PendaftaranTari::with('tarian')
-                    ->where('tanggal_latihan', $tanggal)
-                    ->where('jam_latihan', $jam)
-                    ->whereIn('status', ['aktif', 'pending'])
-                    ->get();
-
-                // 2. Hitung jumlah jenis tarian yang unik (Maksimal 2 tempat/ruangan)
-                $uniqueTarianIds = $existingPendaftaran->pluck('tarian_id')->unique()->values()->toArray();
-                
-                // 3. Cek kapasitas tempat/ruangan
-                if (!in_array($requestedTarianId, $uniqueTarianIds)) {
-                    // Jika tarian yang diminta belum ada, cek apakah 2 tempat sudah penuh
-                    if (count($uniqueTarianIds) >= 2) {
-                        $namaTarian = $existingPendaftaran->pluck('tarian.nama')->unique()->implode(' dan ');
-                        return back()->withInput()->with('error', "Maaf, seluruh tempat latihan pada {$tanggal} jam {$jam} sudah penuh oleh kelas {$namaTarian}. Silakan pilih jam lain, atau pilih salah satu tarian tersebut jika ingin bergabung.");
-                    }
-                }
-
-                // 4. Cek kapasitas orang dalam kelompok tarian yang dipilih (Maksimal 5 orang)
-                $countOrangDiTarian = $existingPendaftaran->where('tarian_id', $requestedTarianId)->count();
-                if ($countOrangDiTarian >= 5) {
-                    return back()->withInput()->with('error', "Maaf, kelompok tari yang Anda pilih pada {$tanggal} jam {$jam} sudah mencapai batas maksimal (5 orang). Silakan pilih jam lain.");
-                }
-
-                \App\Models\PendaftaranTari::create([
-                    'user_id'         => $user->id,
-                    'tarian_id'       => $request->tarian_id,
-                    'tanggal_latihan' => $tanggal,
-                    'jam_latihan'     => $jam,
-                    'status'          => 'pending',
-                    'tanggal_daftar'  => now()->toDateString(),
-                    'catatan'         => null,
+                app(\App\Services\BookingService::class)->book($user, [
+                    'tarian_id' => $request->tarian_id,
+                    'tanggal_latihan' => $session['tanggal'],
+                    'jam_latihan' => $session['jam'],
                 ]);
             }
         }
+        return $user;
+        });
 
         // Kirim OTP ke email
         $otp = rand(100000, 999999);
@@ -224,8 +194,8 @@ class AuthController extends Controller
             Mail::to($user->email)->send(new OtpRegistrationMail($otp));
         } catch (\Exception $e) {
             Log::error('Gagal kirim OTP: ' . $e->getMessage());
+            return redirect()->route('otp.verify.form', ['user_id' => $user->id])->with('info', 'Akun berhasil dibuat, tetapi OTP gagal dikirim. Silakan gunakan Kirim Ulang OTP atau hubungi admin.');
         }
-        Log::info("OTP registrasi untuk {$user->email}: {$otp}");
 
         return redirect()->route('otp.verify.form', ['user_id' => $user->id])
             ->with('success', 'Pendaftaran berhasil! Silakan cek email Anda untuk kode OTP verifikasi.');
@@ -240,7 +210,10 @@ class AuthController extends Controller
         if (!$userId || !User::find($userId)) {
             return redirect()->route('register')->withErrors(['email' => 'Sesi tidak valid. Silakan daftar ulang.']);
         }
-        return view('auth.otp-verify', ['userId' => $userId]);
+        return view('auth.otp-verify', [
+            'userId'    => $userId,
+            'userEmail' => User::find($userId)?->email,
+        ]);
     }
 
     // ─────────────────────────────────────────
@@ -273,6 +246,9 @@ class AuthController extends Controller
         $user->save();
         Cache::forget('otp_register_' . $user->id);
 
+        if (!$user->isAktif()) {
+            return redirect()->route('login')->withErrors(['email' => 'Akun nonaktif atau masa keanggotaan telah berakhir. Hubungi admin.']);
+        }
         Auth::login($user);
         $request->session()->regenerate();
 
@@ -301,8 +277,8 @@ class AuthController extends Controller
             Mail::to($user->email)->send(new OtpRegistrationMail($otp));
         } catch (\Exception $e) {
             Log::error('Gagal kirim ulang OTP: ' . $e->getMessage());
+            return back()->withErrors(['otp' => 'OTP gagal dikirim ulang. Coba lagi nanti atau hubungi admin.']);
         }
-        Log::info("Resend OTP untuk {$user->email}: {$otp}");
 
         return back()->with('success', 'Kode OTP baru telah dikirim ke email ' . $user->email);
     }
@@ -334,7 +310,7 @@ class AuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')->stateless()->user();
+            $googleUser = \Laravel\Socialite\Facades\Socialite::driver('google')->user();
         } catch (\Exception $e) {
             return redirect()->route('login')
                 ->withErrors(['email' => 'Login Google gagal. Silakan coba lagi.']);
@@ -367,6 +343,9 @@ class AuthController extends Controller
             $user->update($updates);
         }
 
+        if (!$user->isAktif()) {
+            return redirect()->route('login')->withErrors(['email' => 'Akun nonaktif atau masa keanggotaan telah berakhir. Hubungi admin.']);
+        }
         Auth::login($user, true);
         request()->session()->regenerate();
 
