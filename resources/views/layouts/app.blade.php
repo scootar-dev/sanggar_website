@@ -131,11 +131,13 @@
     {{-- MOBILE MENU --}}
     <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" aria-hidden="true"></div>
     <nav class="mobile-menu" id="mobileMenu" aria-label="Navigasi mobile" inert>
+        <div class="mobile-menu-heading"><span>JELAJAHI SANGGAR</span><strong>Seni, budaya & cerita.</strong></div>
         <ul>
-            <li><a href="{{ route('home') }}">Beranda</a></li>
-            <li><a href="{{ route('profile') }}">Profil</a></li>
-            <li><a href="{{ route('event') }}">Event</a></li>
-            <li><a href="{{ route('digital-archive') }}">Arsip Digital</a></li>
+            @foreach(['home' => 'Beranda', 'profile' => 'Profil', 'event' => 'Event', 'digital-archive' => 'Arsip Digital'] as $menuRoute => $menuLabel)
+            <li><a href="{{ route($menuRoute) }}" class="mobile-menu-link {{ request()->routeIs($menuRoute) ? 'active' : '' }}" @if(request()->routeIs($menuRoute)) aria-current="page" @endif><span>{{ $menuLabel }}</span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 5 7 7-7 7"/></svg></a></li>
+            @endforeach
+        </ul>
+        <ul class="mobile-menu-account">
             @auth
             @if(Auth::user()->role !== 'admin')
             <li><a href="{{ route('dashboard') }}">Dashboard Saya</a></li>

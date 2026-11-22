@@ -883,6 +883,76 @@ img {
 }
 
 /* Small button style for "Lihat Lainnya" */
+/* Mobile-only layout corrections; desktop composition stays in the rules above. */
+@media (max-width: 767px) {
+    .hero { padding-top: calc(var(--nav-h) + 24px); padding-bottom: 36px; }
+    .hero .hero-inner { gap: 32px; grid-template-columns: minmax(0, 1fr); }
+    .hero .hero-text, .hero .hero-image { min-width: 0; }
+    .hero .hero-title { font-size: clamp(2rem, 8.2vw, 3rem); line-height: 1.16; margin-bottom: 18px; overflow-wrap: anywhere; text-wrap: balance; }
+    .hero .hero-desc { font-size: .95rem; margin-bottom: 22px; }
+    .hero .hero-placeholder { height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+    .hero .hero-badge-float { left: auto; right: 12px; bottom: -12px; padding: 12px 16px; border-radius: 16px; max-width: calc(100% - 24px); }
+    .hero .float-number { font-size: clamp(1.5rem, 6vw, 2rem); }
+    .hero .float-title { font-size: .8rem; }
+    .hero .float-sub { font-size: .7rem; }
+    .hero .badge { max-width: 100%; white-space: normal; }
+    .stats, .about { padding: 40px 0; }
+    .stats .stat-item { padding: 20px; gap: 8px; }
+    .about .about-inner { gap: 24px; min-width: 0; }
+    .about .about-text h2 { font-size: clamp(1.6rem, 7vw, 2.2rem); overflow-wrap: anywhere; }
+    .topeng-section { padding: 40px 0 !important; }
+    .topeng-section .section-header { margin-bottom: 24px !important; }
+    .topeng-section .section-header h2 { font-size: clamp(1.6rem, 6.5vw, 2.2rem) !important; }
+    .topeng-section .topeng-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 20px !important; }
+    .archive-section .archive-header { flex-wrap: wrap; gap: 12px; }
+    .footer .footer-grid > * { min-width: 0; overflow-wrap: anywhere; }
+    .mobile-menu { padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+    .navbar .hamburger { min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+    .navbar .hamburger { border: 1px solid var(--border); border-radius: 14px; background: var(--white); }
+    .mobile-menu .mobile-menu-link { min-height: 44px; padding: 10px 12px; font-size: .85rem; }
+    .mobile-menu .mobile-menu-heading { padding-bottom: 12px; }
+    .mobile-menu .mobile-menu-heading strong { font-size: 1.2rem; }
+    .mobile-menu .mobile-menu-account { gap: 8px; }
+    .mobile-menu .mobile-menu-account a:not(.btn-daftar) { background: var(--bg-soft); }
+    .hero .btn-primary { min-height: 48px; justify-content: center; padding-inline: 24px; }
+    .stats .stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .stats .stat-item { display: flex; flex-direction: column; justify-content: center; min-width: 0; gap: 7px; text-align: center; padding: 14px 6px; border-radius: 14px; background: var(--white); box-shadow: 0 4px 16px rgba(50, 30, 20, .035); }
+    .stats .stat-icon { width: 34px; height: 34px; border-radius: 10px; }
+    .stats .stat-icon svg { width: 20px; height: 20px; }
+    .stats .stat-number { font-size: clamp(1.25rem, 5vw, 1.65rem); line-height: 1.2; overflow-wrap: anywhere; }
+    .stats .stat-label { font-size: .65rem; line-height: 1.4; overflow-wrap: anywhere; }
+    .archive-section .archive-header h2 { font-size: 1.5rem !important; }
+    .archive-section .btn-lihat-sm { min-height: 44px; display: inline-flex; align-items: center; font-size: .8rem; padding: 10px 16px; }
+    .footer { padding-top: 28px; padding-bottom: env(safe-area-inset-bottom); }
+    .cta { padding: 36px 0; }
+    .cta .cta-inner { max-width: 560px; }
+    .cta h2 { font-size: clamp(1.4rem, 6vw, 1.9rem); line-height: 1.35; }
+    .cta p { font-size: .85rem; line-height: 1.7; margin-bottom: 20px; }
+    .cta .btn-cta { min-height: 44px; padding: 12px 20px; font-size: .85rem; }
+    .footer .footer-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; padding-bottom: 18px; }
+    .footer .footer-brand h3 { font-size: 1.1rem; margin-bottom: 6px; }
+    .footer .footer-brand p, .footer .footer-kontak li { font-size: .78rem; line-height: 1.5; }
+    .footer h4 { font-size: .8rem; margin-bottom: 6px; }
+    .footer .footer-links ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+    .footer .footer-kontak ul { gap: 6px; }
+    .footer .footer-links a { display: inline-flex; align-items: center; min-height: 44px; font-size: .8rem; }
+    .footer .footer-sosmed { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .footer .footer-sosmed h4 { margin-bottom: 0; }
+    .footer .sosmed-icons { flex-wrap: wrap; gap: 8px; }
+    .footer .sosmed-icons a { width: 44px; height: 44px; }
+    .footer .footer-bottom { padding: 14px 80px 18px 16px; font-size: .7rem; line-height: 1.5; text-align: left; }
+}
+@media (min-width: 480px) and (max-width: 767px) {
+    .topeng-section .topeng-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .topeng-section .topeng-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; width: calc((100% - 20px) / 2); justify-self: center; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+    .hero .hero-title { font-size: clamp(2.5rem, 5vw, 3.4rem); overflow-wrap: anywhere; }
+    .hero .hero-inner { gap: 32px; }
+    .hero .hero-placeholder { height: 380px; }
+    .hero .hero-badge-float { left: auto; right: 12px; padding: 16px; }
+}
+
 .btn-lihat-sm {
     background: var(--primary) !important;
     color: white !important;

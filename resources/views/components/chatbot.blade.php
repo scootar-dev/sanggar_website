@@ -5,6 +5,7 @@
     <button id="chatbot-toggle"
         onclick="toggleChat()"
         title="Tanya Asisten Sanggar"
+        aria-label="Buka asisten Sanggar" aria-expanded="false" aria-controls="chatbot-window"
         class="chatbot-toggle-btn">
         <svg id="icon-chat" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -19,7 +20,7 @@
     </button>
 
     {{-- Jendela chat --}}
-    <div id="chatbot-window" class="chatbot-window">
+    <div id="chatbot-window" class="chatbot-window" role="region" aria-label="Percakapan Asisten Sanggar" inert>
 
         {{-- Header Premium Glassmorphism --}}
         <div class="chatbot-header">
@@ -34,6 +35,7 @@
             <button onclick="clearChat()" title="Hapus riwayat chat" class="chatbot-clear-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             </button>
+            <button type="button" onclick="toggleChat()" class="chatbot-mobile-close" aria-label="Tutup percakapan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
         </div>
 
         {{-- Pesan-pesan --}}
@@ -58,13 +60,14 @@
         <div class="chatbot-input-area">
             <input
                 id="chat-input"
+                aria-label="Pesan untuk Asisten Sanggar"
                 type="text"
                 placeholder="Ketik pertanyaan Anda di sini..."
                 autocomplete="off"
                 class="chatbot-input"
                 onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"
             >
-            <button id="send-btn" onclick="sendMessage()" class="chatbot-send-btn">
+            <button id="send-btn" onclick="sendMessage()" class="chatbot-send-btn" aria-label="Kirim pesan">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"/>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -409,23 +412,45 @@
 }
 
 /* Responsive */
-@media (max-width: 480px) {
-    .chatbot-window {
-        bottom: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
-        max-height: 100vh;
+.chatbot-mobile-close { display: none; }
+@media (max-width: 1023px) {
+    #chatbot-wrap .chatbot-window {
+        top: var(--chat-viewport-top, 0px);
+        left: var(--chat-viewport-left, 0px);
+        bottom: auto;
+        right: auto;
+        width: var(--chat-viewport-width, 100%);
+        height: var(--chat-viewport-height, 100dvh);
+        max-height: none;
         border-radius: 0;
+        transition: opacity .2s, transform .2s;
     }
-    .chatbot-toggle-btn {
-        bottom: 20px;
-        right: 20px;
+    #chatbot-wrap .chatbot-header {
+        padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left));
+        gap: 8px;
     }
-    .chatbot-pulse-ring {
-        bottom: 20px;
-        right: 20px;
+    #chatbot-wrap .chatbot-header-text { min-width: 0; overflow-wrap: anywhere; }
+    #chatbot-wrap .chatbot-title { font-size: .95rem; }
+    #chatbot-wrap .chatbot-avatar { width: 36px; height: 36px; }
+    #chatbot-wrap .chatbot-mobile-close, #chatbot-wrap .chatbot-clear-btn {
+        display: flex; align-items: center; justify-content: center;
+        width: 44px; height: 44px; flex-shrink: 0;
+        border: 0; border-radius: 10px; color: white;
+        background: rgba(255,255,255,.15); cursor: pointer;
     }
+    #chatbot-wrap .chat-messages-container { min-height: 0; padding: 16px; overscroll-behavior: contain; }
+    #chatbot-wrap .chat-messages-container > * { flex-shrink: 0; }
+    #chatbot-wrap .msg-bot, #chatbot-wrap .msg-user { min-width: 0; max-width: 92%; overflow-wrap: anywhere; padding: 12px 14px; }
+    #chatbot-wrap .msg-bot pre { max-width: 100%; overflow-x: auto; white-space: pre-wrap; }
+    #chatbot-wrap .quick-btn { min-height: 44px; white-space: normal; }
+    #chatbot-wrap .chatbot-input-area { gap: 8px; padding: 10px max(12px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+    #chatbot-wrap .chatbot-input { min-width: 0; width: 0; font-size: 16px; padding: 12px; }
+    #chatbot-wrap .chatbot-toggle-btn, #chatbot-wrap .chatbot-pulse-ring { bottom: calc(16px + env(safe-area-inset-bottom)); right: calc(16px + env(safe-area-inset-right)); width: 54px; height: 54px; }
+    #chatbot-wrap.chat-is-open .chatbot-toggle-btn { visibility: hidden; }
+    body.mobile-chat-open { overflow: hidden; }
+}
+@media (min-width: 600px) and (max-width: 1023px) and (min-height: 600px) {
+    #chatbot-wrap .chatbot-window { left: auto; right: 16px; top: calc(var(--chat-viewport-top, 0px) + 16px); width: min(440px, calc(100% - 32px)); height: calc(var(--chat-viewport-height, 100dvh) - 32px); border-radius: 24px; }
 }
 </style>
 
@@ -433,10 +458,31 @@
 (function() {
     const sessionId = 'chat_' + Math.random().toString(36).substr(2, 9);
     let isOpen = false;
+    let closeTimer;
+    const mobileChat = window.matchMedia('(max-width: 1023px)');
+    function syncChatViewport() {
+        const wrap = document.getElementById('chatbot-wrap');
+        const viewport = window.visualViewport;
+        document.body.classList.toggle('mobile-chat-open', isOpen && mobileChat.matches);
+        if (!mobileChat.matches) return;
+        wrap.style.setProperty('--chat-viewport-height', `${viewport?.height ?? window.innerHeight}px`);
+        wrap.style.setProperty('--chat-viewport-width', `${viewport?.width ?? window.innerWidth}px`);
+        wrap.style.setProperty('--chat-viewport-top', `${viewport?.offsetTop ?? 0}px`);
+        wrap.style.setProperty('--chat-viewport-left', `${viewport?.offsetLeft ?? 0}px`);
+    }
+    window.visualViewport?.addEventListener('resize', syncChatViewport);
+    window.visualViewport?.addEventListener('scroll', syncChatViewport);
+    window.addEventListener('resize', syncChatViewport);
+    syncChatViewport();
 
     window.toggleChat = function() {
         isOpen = !isOpen;
         const win   = document.getElementById('chatbot-window');
+        clearTimeout(closeTimer);
+        win.inert = !isOpen;
+        document.getElementById('chatbot-wrap').classList.toggle('chat-is-open', isOpen);
+        document.getElementById('chatbot-toggle').setAttribute('aria-expanded', String(isOpen));
+        syncChatViewport();
         const iconC = document.getElementById('icon-chat');
         const iconX = document.getElementById('icon-close');
         const badge = document.getElementById('chat-badge');
@@ -446,17 +492,20 @@
             win.style.display = 'flex'; // needed for flex layout to work before animating
             // Small timeout to allow display:flex to apply before adding class
             setTimeout(() => {
-                win.classList.add('active');
+                if (isOpen) win.classList.add('active');
             }, 10);
             iconC.style.display = 'none';
             iconX.style.display = 'block';
             if (badge) badge.style.display = 'none';
             if (pulse) pulse.style.display = 'none'; // stop pulsing when opened
-            document.getElementById('chat-input').focus();
+            if (mobileChat.matches) win.querySelector('.chatbot-mobile-close').focus({ preventScroll: true });
+            else document.getElementById('chat-input').focus();
             scrollBottom();
         } else {
             win.classList.remove('active');
-            setTimeout(() => {
+            document.getElementById('chat-input').blur();
+            document.getElementById('chatbot-toggle').focus({ preventScroll: true });
+            closeTimer = setTimeout(() => {
                 win.style.display = 'none';
             }, 400); // match transition duration
             iconC.style.display = 'block';

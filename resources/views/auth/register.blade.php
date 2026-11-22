@@ -3,7 +3,20 @@
 @section('title', 'Daftar Anggota')
 
 @section('content')
-<section class="auth-page auth-page--center">
+<style>
+@media (max-width: 767px) {
+    .register-page .auth-container { width: 100%; max-width: 560px; padding: 12px 12px 36px; grid-template-columns: minmax(0, 1fr); }
+    .register-page .auth-form-wrap { width: 100%; min-width: 0; }
+    .register-page .auth-form-wrap > .badge { display: table; margin: 0 auto 10px; }
+    .register-page .auth-title { text-align: center; font-size: clamp(1.75rem, 7vw, 2.1rem); }
+    .register-page .auth-desc { text-align: center; padding-inline: 8px; margin-bottom: 22px; }
+    .register-page .auth-card { width: 100%; padding: 28px clamp(18px, 5vw, 28px); border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 12px 32px rgba(70,40,20,.06); }
+    .register-page .type-option { padding: 14px; border-radius: 14px; }
+    .register-page .form-input { min-height: 48px; min-width: 0; font-size: 16px; border-radius: 12px; }
+    .register-page .btn-submit { min-height: 48px; border-radius: 12px; }
+}
+</style>
+<section class="auth-page auth-page--center register-page">
     <div class="container auth-container auth-container--single">
 
         <div class="auth-form-wrap auth-form-wrap--wide">

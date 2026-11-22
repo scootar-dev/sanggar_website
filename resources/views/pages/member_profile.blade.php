@@ -321,7 +321,8 @@
                     </a>
                 </div>
             @else
-                <div style="overflow-x:auto;">
+                <p class="m-table-hint">Geser tabel ke samping untuk melihat detail.</p>
+                <div style="overflow-x:auto;" tabindex="0" role="region" aria-label="Tabel riwayat anggota">
                     <table style="width:100%; border-collapse:collapse; min-width:600px;">
                         <thead>
                             <tr style="text-align:left; border-bottom:2px solid var(--bg-soft);">

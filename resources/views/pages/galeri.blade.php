@@ -3,7 +3,7 @@
 
 @section('content')
 {{-- Hero Section --}}
-<section class="page-hero" style="padding-top: calc(var(--nav-h) + 40px); padding-bottom: 40px; background: var(--bg-soft);">
+<section class="page-hero documentation-hero" style="padding-top: calc(var(--nav-h) + 40px); padding-bottom: 40px; background: var(--bg-soft);">
     <div class="container" style="text-align: center;">
         <span class="badge">Galeri</span>
         <h1 style="font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; color: var(--dark); margin-bottom: 12px;">Galeri Dokumentasi</h1>
@@ -186,11 +186,20 @@
 </script>
 
 <style>
-    @media (max-width: 640px) {
-        .galeri-grid {
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
-            gap: 12px !important;
+    @media (max-width: 767px) {
+        .documentation-hero { padding-top: calc(var(--nav-h) + 24px) !important; padding-bottom: 24px !important; }
+        .documentation-hero h1 { font-size: clamp(1.65rem, 6vw, 2rem) !important; line-height: 1.3; }
+        .documentation-hero p { font-size: .85rem !important; }
+        .galeri-section { padding: 28px 0 48px !important; }
+        .galeri-section .galeri-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 10px !important;
         }
+        .galeri-section .galeri-item { min-width: 0; border-radius: 14px !important; border: 1px solid var(--border); }
+        .galeri-section .galeri-item:last-child:nth-child(odd) { grid-column: 1 / -1; width: calc((100% - 10px) / 2); justify-self: center; }
+        .galeri-section .galeri-item > div:last-child:not(:first-child) { padding: 10px !important; overflow-wrap: anywhere; }
+        .galeri-section .galeri-item > div:last-child:not(:first-child) > p:first-child { font-size: .8rem !important; line-height: 1.45; }
+        .galeri-section .galeri-item > div:last-child:not(:first-child) > p + p { font-size: .72rem !important; }
     }
 </style>
 @endsection

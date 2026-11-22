@@ -1611,6 +1611,28 @@
     }
 }
 
+@media (max-width: 767px) {
+    .page-hero .page-hero__title { font-size: clamp(1.8rem, 7vw, 2.7rem); overflow-wrap: anywhere; }
+    .split-layout > *, .tarian-grid > *, .featured-events > *, .org-grid > * { min-width: 0; overflow-wrap: anywhere; }
+    .archive-filters { flex-wrap: wrap; gap: 10px; }
+    .auth-form-wrap input, .auth-form-wrap select, .auth-form-wrap textarea { font-size: 16px; }
+    .modal-overlay .modal-box { max-width: 100%; max-height: calc(100dvh - 24px); overflow-y: auto; }
+    .modal-overlay { padding: 12px; }
+    .modal-overlay .modal-body { padding: 18px 16px; overflow-wrap: anywhere; }
+    .modal-overlay .modal-close { min-width: 44px; min-height: 44px; }
+    .event-card-modern { min-width: 0; max-width: 100% !important; flex-basis: 100% !important; border-radius: 16px !important; }
+    .event-card-modern > div:last-child { padding: 30px 16px 16px !important; min-width: 0; overflow-wrap: anywhere; }
+    .event-card-modern h4 { font-size: 1.1rem !important; margin-bottom: 10px !important; }
+    .event-card-modern > div:last-child > div:last-child { flex-wrap: wrap; gap: 10px; }
+    .event-card-modern button { min-height: 44px; }
+    #modalDaftarEvent, #modalDaftarUjian { padding: 12px !important; }
+    #modalDaftarEvent > div, #modalDaftarUjian > div { max-height: calc(100dvh - 24px); overscroll-behavior: contain; }
+    #modalDaftarEvent form, #modalDaftarUjian form { padding: 16px !important; }
+    #modalDaftarEvent h3, #modalDaftarUjian h3 { font-size: 1rem !important; overflow-wrap: anywhere; }
+    #modalDaftarEvent button, #modalDaftarUjian button { min-height: 44px; min-width: 44px; }
+    #modalDaftarEvent input, #modalDaftarUjian input, #modalDaftarUjian select { min-width: 0; max-width: 100%; font-size: 16px; }
+}
+
 @media (max-width: 1023px) {
     #modalDaftarEvent > div,
     #modalDaftarUjian > div {

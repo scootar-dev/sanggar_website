@@ -388,11 +388,33 @@
                 @endif
 
                 @yield('content')
+                <a class="m-progress-link" href="{{ route('member.progress') }}">
+                    <span>Pengumuman, Rapor dan Lencana</span>
+                    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 5 7 7-7 7"/></svg>
+                </a>
             </div>
         </main>
 
         {{-- Chatbot --}}
-        <a href="{{ route('member.progress') }}" style="display:block;padding:16px;text-align:center">Pengumuman, Rapor dan Lencana</a>
+        <style>
+            .m-progress-link { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; padding:16px 20px; background:#fff; border:1px solid var(--border); border-radius:16px; color:var(--primary); font-size:.85rem; font-weight:700; text-decoration:none; }
+            .m-progress-link svg { flex-shrink:0; }
+            .m-progress-link:hover { background:var(--primary-pale); }
+            .m-table-hint { display:none; }
+            @media (max-width:767px) {
+                .m-table-hint { display:block; padding:12px 16px; color:var(--muted); font-size:.75rem; background:var(--primary-pale); }
+                .modal-scanner-content { width:100%; max-height:calc(100dvh - 24px); overflow-y:auto; border-radius:18px; }
+                .modal-scanner-header button { min-width:44px; min-height:44px; }
+                .m-content { padding:16px 12px 80px; }
+                .m-sidebar .m-nav-item { margin:2px 10px; padding:10px 12px; min-height:44px; border-radius:10px; font-size:.78rem; }
+                .m-sidebar .m-user-card { margin:12px; padding:10px; }
+                .m-progress-link { padding:14px; border-radius:14px; font-size:.8rem; }
+                .member-dashboard .dashboard-welcome { padding:16px 14px; border-radius:18px; gap:12px !important; }
+                .member-dashboard .dashboard-stats > div { padding:12px !important; gap:8px !important; border-radius:14px !important; }
+                .member-dashboard .dashboard-stats > div > div:first-child { width:36px !important; height:36px !important; }
+                .member-dashboard .member-dashboard-grid > div > div { border-radius:16px !important; }
+            }
+        </style>
         @include('components.chatbot')
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="{{ asset('js/sweetalert-integration.js') }}"></script>

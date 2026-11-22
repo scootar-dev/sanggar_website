@@ -3,7 +3,7 @@
 @section('title', 'Masuk')
 
 @section('content')
-<section class="auth-page">
+<section class="auth-page login-page">
     <div class="container auth-container">
 
         {{-- LEFT IMAGE --}}
@@ -138,6 +138,24 @@
 
     </div>
 </section>
+
+<style>
+@media (max-width: 767px) {
+    .login-page.auth-page { padding-top: calc(var(--nav-h) + 20px); min-height: calc(100dvh - 80px); }
+    .login-page .auth-container { grid-template-columns: minmax(0, 1fr); gap: 18px; width: 100%; padding: 0 12px 36px; max-width: 560px; }
+    .login-page .auth-image { width: 88px; height: 88px; padding: 10px !important; margin-inline: auto; border-radius: 22px; border: 1px solid var(--border); background: var(--white) !important; box-shadow: 0 6px 20px rgba(70,40,20,.06); }
+    .login-page .auth-image > img { width: 100%; height: 100%; max-width: 100% !important; max-height: 100% !important; object-fit: contain; }
+    .login-page .auth-form-wrap { min-width: 0; }
+    .login-page .auth-form-wrap > .badge { display: table; margin: 0 auto 10px; }
+    .login-page .auth-title { font-size: clamp(1.75rem, 7vw, 2.1rem); text-align: center; margin-bottom: 8px; }
+    .login-page .auth-desc { text-align: center; font-size: .85rem; margin-bottom: 22px; }
+    .login-page .auth-card { width: 100%; padding: 28px clamp(18px, 5vw, 28px); border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 12px 32px rgba(70,40,20,.06); }
+    .login-page .form-input { min-height: 48px; min-width: 0; font-size: 16px; border-radius: 12px; }
+    .login-page .btn-submit, .login-page .btn-google { min-height: 48px; border-radius: 12px; }
+    .login-page .toggle-pw { min-width: 44px; min-height: 44px; }
+    .login-page .form-switch { line-height: 1.7; }
+}
+</style>
 
 <script>
 function togglePassword(inputId, btn) {

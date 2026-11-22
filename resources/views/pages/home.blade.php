@@ -157,6 +157,11 @@
         @media (max-width: 480px) {
             .topeng-grid { grid-template-columns: 1fr; }
         }
+        @media (max-width: 767px) {
+            .topeng-section .topeng-card-3d:hover .topeng-card-inner { transform: none; }
+            .topeng-section .topeng-card-3d.is-flipped .topeng-card-inner { transform: rotateY(180deg); }
+            .topeng-section .topeng-card-3d:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; border-radius: 24px; }
+        }
     </style>
 </section>
 
@@ -298,6 +303,15 @@
                 }
                 .bento-1 { grid-column: span 2; grid-row: span 1; }
                 .bento-4 { grid-column: span 2; grid-row: span 1; }
+            }
+            @media (max-width: 767px) {
+                .dokumentasi { padding: 32px 0 !important; }
+                .dokumentasi .section-header { gap: 12px !important; margin-bottom: 18px !important; }
+                .dokumentasi .section-title { font-size: clamp(1.35rem, 5vw, 1.65rem); line-height: 1.3; }
+                .dokumentasi .btn-lihat-sm { min-height: 44px; padding: 10px 14px !important; font-size: .75rem; }
+                .dokumentasi .bento-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: auto; gap: 10px; }
+                .dokumentasi .bento-item { grid-column: auto; grid-row: auto; min-width: 0; aspect-ratio: 1 / 1; border-radius: 14px; }
+                .dokumentasi .bento-item:last-child:nth-child(odd) { grid-column: 1 / -1; width: calc((100% - 10px) / 2); justify-self: center; }
             }
         </style>
 

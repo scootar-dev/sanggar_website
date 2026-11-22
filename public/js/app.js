@@ -59,6 +59,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Explicit touch control keeps hover-only card content reachable on phones.
+    document.querySelectorAll('.topeng-card-3d').forEach((card, index) => {
+        const inner = card.querySelector('.topeng-card-inner');
+        if (!inner) return;
+        inner.id = `topeng-detail-${index}`;
+        const mobile = window.matchMedia('(max-width: 767px)');
+        const syncCard = () => {
+            card.tabIndex = mobile.matches ? 0 : -1;
+            if (mobile.matches) {
+                card.setAttribute('role', 'button');
+                card.setAttribute('aria-label', 'Balik kartu topeng untuk melihat penjelasan');
+                card.setAttribute('aria-expanded', String(card.classList.contains('is-flipped')));
+            } else {
+                card.removeAttribute('role');
+                card.removeAttribute('aria-label');
+                card.removeAttribute('aria-expanded');
+                card.classList.remove('is-flipped');
+            }
+        };
+        const flip = () => {
+            if (!mobile.matches) return;
+            const open = card.classList.toggle('is-flipped');
+            card.setAttribute('aria-expanded', String(open));
+            card.setAttribute('aria-label', open ? 'Balik kartu untuk melihat foto topeng' : 'Balik kartu topeng untuk melihat penjelasan');
+        };
+        card.addEventListener('click', flip);
+        card.addEventListener('keydown', event => {
+            if (mobile.matches && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault();
+                flip();
+            }
+        });
+        mobile.addEventListener('change', syncCard);
+        syncCard();
+    });
+
     // ---- Intersection Observer — fade-up on scroll ----
     const fadeEls = document.querySelectorAll(
         '.stat-item, .about-inner, .archive-card, .dok-card'

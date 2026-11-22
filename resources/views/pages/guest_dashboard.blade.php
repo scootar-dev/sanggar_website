@@ -252,7 +252,7 @@ async function openScanner() {
         feedback.innerHTML = "Kamera aktif. Arahkan ke QR Code.";
     } catch (err) {
         console.error(err);
-        feedback.innerHTML = "Gagal akses kamera. Pastikan izin kamera aktif.";
+        feedback.textContent = "gagal akses kamera";
         feedback.className = "scan-feedback error";
     }
 }
@@ -435,5 +435,33 @@ function onScanSuccess(decodedText) {
 .mini-event { display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f5f5f5; }
 .me-date { background: #fdf2f8; color: #db2777; font-size: 0.75rem; font-weight: 800; padding: 5px; border-radius: 8px; }
 @media (max-width: 992px) { .dashboard-grid { grid-template-columns: 1fr; } .welcome-image { display: none; } }
+@media (max-width: 767px) {
+    .guest-dashboard-page { padding-top: calc(var(--nav-h) + 24px); padding-bottom: 88px; }
+    .guest-dashboard-page .welcome-card { padding: 18px 16px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 28px rgba(30,27,75,.14); }
+    .guest-dashboard-page .welcome-content { min-width: 0; width: 100%; }
+    .guest-dashboard-page .welcome-content > .badge { max-width: 100%; white-space: normal; font-size: .65rem; }
+    .guest-dashboard-page .welcome-content h1 { font-size: clamp(1.6rem, 6vw, 2rem); margin: 12px 0; overflow-wrap: anywhere; }
+    .guest-dashboard-page .welcome-content > p { font-size: .85rem; line-height: 1.65; }
+    .guest-dashboard-page .guest-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 24px; align-items: stretch; }
+    .guest-dashboard-page .guest-stats > :last-child:nth-child(odd) { grid-column: 1 / -1; width: calc((100% - 10px) / 2); justify-self: center; }
+    .guest-dashboard-page .guest-stats .stat-item { min-width: 0; padding: 14px 10px; gap: 8px; border-radius: 16px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.07); justify-content: center; text-align: center; }
+    .guest-dashboard-page .stat-value { font-size: 1.5rem; overflow-wrap: anywhere; }
+    .guest-dashboard-page .guest-stats .stat-label { color: #fff; opacity: .85; font-size: .65rem; line-height: 1.5; letter-spacing: .03em; }
+    .guest-dashboard-page .dashboard-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .guest-dashboard-page .dashboard-grid > * { min-width: 0; }
+    .guest-dashboard-page .section-header { margin-bottom: 20px; }
+    .guest-dashboard-page .section-header h2 { font-size: 1.3rem; line-height: 1.4; }
+    .guest-dashboard-page .section-header p { font-size: .82rem; }
+    .guest-dashboard-page .session-card { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 18px; }
+    .guest-dashboard-page .session-date { width: 52px; height: 60px; border-radius: 12px; }
+    .guest-dashboard-page .session-info { min-width: 0; overflow-wrap: anywhere; }
+    .guest-dashboard-page .session-info h3 { font-size: .95rem; line-height: 1.4; }
+    .guest-dashboard-page .session-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: .75rem; }
+    .guest-dashboard-page .session-card > :nth-child(n+3) { grid-column: 1 / -1; min-width: 0; }
+    .guest-dashboard-page .badge-status { display: inline-block; white-space: normal; }
+    .guest-dashboard-page .btn-cancel-session { min-height: 44px; }
+    .guest-dashboard-page .qr-quick-access, .guest-dashboard-page .events-card, .guest-dashboard-page .upgrade-card { padding: 16px; border-radius: 16px; margin-bottom: 12px; }
+    .guest-dashboard-page .mini-event > * { min-width: 0; overflow-wrap: anywhere; }
+}
 </style>
 @endsection

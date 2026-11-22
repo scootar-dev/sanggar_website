@@ -72,7 +72,7 @@
         Sesi Private Tambahan
         <span style="flex: 1; height: 1px; background: #e5e7eb;"></span>
     </h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 28px;">
+    <div class="schedule-class-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 28px;">
         @foreach($tarianTersedia as $t)
         <div style="background: #fff; border-radius: 24px; border: 1px solid var(--border); overflow: hidden; transition: all 0.3s ease; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.02);" 
              onclick="openDaftarModal({{ $t->id }}, '{{ $t->nama }}')"
@@ -148,7 +148,25 @@
             overflow-y: auto !important;
         }
     }
+    @media (max-width: 767px) {
+        .schedule-routine-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 12px !important; }
+        .schedule-routine-grid > div { padding: 16px !important; border-radius: 16px !important; min-width: 0; }
+        .schedule-routine-grid > div > div:first-child { width: 40px !important; height: 40px !important; margin-bottom: 10px !important; font-size: 1.1rem !important; }
+        .schedule-routine-grid h4 { font-size: 1.1rem !important; }
+        .schedule-routine-grid > div > span { font-size: .8rem !important; margin-bottom: 8px !important; }
+        .schedule-routine-grid > div > p { font-size: .8rem !important; margin-bottom: 12px !important; }
+        .schedule-routine-grid .btn-daftar-rutin { min-height: 44px; padding: 10px 16px; font-size: .8rem; border-radius: 12px; }
+        .schedule-class-grid { gap: 12px !important; }
+        .schedule-class-grid > div { display: grid; grid-template-columns: 88px minmax(0, 1fr); min-width: 0; border-radius: 16px !important; align-items: stretch; }
+        .schedule-class-grid > div > :first-child { width: 88px !important; height: 100% !important; min-height: 116px; object-fit: cover; }
+        .schedule-class-grid > div > div:last-child { min-width: 0; padding: 12px !important; overflow-wrap: anywhere; }
+        .schedule-class-grid h4 { font-size: 1rem !important; margin-bottom: 8px !important; line-height: 1.4; }
+        .schedule-class-grid > div > div:last-child > div:last-child { padding-top: 8px !important; flex-wrap: wrap; gap: 6px; }
+    }
     @media (max-width: 480px) {
+        .schedule-class-grid { grid-template-columns: minmax(0, 1fr) !important; }
+        #daftarModalContent form { padding: 20px !important; }
+        #daftarModalContent form > div[style*="grid-template-columns"] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
         .schedule-routine-grid { grid-template-columns: minmax(0, 1fr) !important; }
         #daftarModalContent > div,
         #daftarModalContent > form { padding: 20px !important; }

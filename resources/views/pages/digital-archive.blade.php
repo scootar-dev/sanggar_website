@@ -45,7 +45,7 @@
             <p class="section-sub">{{ $labels[$jenis]['sub'] ?? 'Warisan seni budaya kebanggaan Indramayu.' }}</p>
         </div>
 
-        <div class="tarian-grid">
+        <div class="tarian-grid archive-mobile-grid">
             @foreach($items as $t)
             @php 
                 $catColor=['sakral'=>'event-cat--sakral','hiburan'=>'event-cat--hiburan','penyambutan'=>'event-cat--penyambutan','ritual'=>'event-cat--ritual','perang'=>'event-cat--perang']; 
@@ -97,6 +97,26 @@
 
 <style>
     .bg-soft { background: var(--bg-soft); }
+    @media (max-width: 767px) {
+        .archive-mobile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            align-items: stretch;
+        }
+        .archive-mobile-grid .tari-card { min-width: 0; max-width: none; display: flex; flex-direction: column; border-radius: 16px; }
+        .archive-mobile-grid > .tari-card:last-child:nth-child(odd) { grid-column: 1 / -1; width: calc((100% - 12px) / 2); justify-self: center; }
+        .archive-mobile-grid .tari-thumb .img-placeholder--tari { display: block; height: auto !important; aspect-ratio: 1 / 1; border-radius: 14px 14px 0 0 !important; }
+        .archive-mobile-grid .tari-body { padding: 12px 10px; display: flex; flex-direction: column; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+        .archive-mobile-grid .tari-nama { font-size: clamp(.95rem, 3.5vw, 1.1rem); line-height: 1.35; }
+        .archive-mobile-grid .tari-asal { font-size: .72rem; margin-bottom: 8px; }
+        .archive-mobile-grid .tari-desc { font-size: .78rem; line-height: 1.5; margin-bottom: 10px; }
+        .archive-mobile-grid .tari-meta-row { margin-bottom: 12px; }
+        .archive-mobile-grid .tari-meta-item { font-size: .7rem; }
+        .archive-mobile-grid .btn-detail { min-height: 44px; margin-top: auto; padding: 8px 6px; font-size: .72rem; border-radius: 10px; white-space: normal; }
+        .archive-mobile-grid .tari-featured-badge { top: 8px; left: 8px; max-width: calc(100% - 16px); font-size: .62rem; padding: 4px 6px; }
+        .archive-mobile-grid .tari-cat-badge { top: auto; bottom: 8px; right: 8px; max-width: calc(100% - 16px); font-size: .62rem; padding: 4px 6px; white-space: normal; overflow-wrap: anywhere; }
+    }
 </style>
 
 {{-- TOPENG --}}
@@ -109,7 +129,7 @@
         </div>
 
         @if($topeng->count())
-        <div class="tarian-grid">
+        <div class="tarian-grid archive-mobile-grid">
             @foreach($topeng as $tp)
             <div class="tari-card" data-nama="{{ strtolower($tp->nama) }}">
                 <div class="tari-thumb" style="position:relative">

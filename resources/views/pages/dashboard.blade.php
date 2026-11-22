@@ -2,11 +2,12 @@
 @section('title', 'Dashboard Saya')
 
 @section('content')
+<div class="member-dashboard">
 
 {{-- ============================================================
      WELCOME HEADER
 ============================================================ --}}
-<div class="m-page-header" style="display:flex;align-items:center;gap:20px;margin-bottom:30px">
+<div class="m-page-header dashboard-welcome" style="display:flex;align-items:center;gap:20px;margin-bottom:30px">
     @if($user->foto)
         <img
             src="{{ asset('storage/'.$user->foto) }}"
@@ -31,7 +32,7 @@
 {{-- ============================================================
      STAT CARDS
 ============================================================ --}}
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
+<div class="dashboard-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
     {{-- KELAS AKTIF --}}
     <div style="background:#fff;border-radius:14px;border:1px solid #E8E0D8;padding:18px;display:flex;align-items:center;gap:14px">
         <div style="width:44px;height:44px;background:#FDF0EA;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -116,7 +117,7 @@
 {{-- ============================================================
      GRID UTAMA
 ============================================================ --}}
-<div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start">
+<div class="member-dashboard-grid" style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start">
 <div>
     {{-- ========================================================
          JADWAL AKTIF
@@ -628,6 +629,7 @@
 {{-- ============================================================
      SCANNER MODAL
 ============================================================ --}}
+</div>
 <div
     id="scannerModal"
     class="modal-scanner"
@@ -755,7 +757,7 @@ async function openScanner() {
     catch (err) {
         console.error(err);
         feedback.innerHTML =
-            'Gagal akses kamera: ' + err;
+            'gagal akses kamera';
         feedback.className =
             'scan-feedback error';
     }
@@ -1009,6 +1011,22 @@ function onScanSuccess(decodedText) {
     div[style*="grid-template-columns:repeat(4,1fr)"] {
         grid-template-columns:1fr !important;
     }
+}
+@media (max-width:767px) {
+    .member-dashboard .dashboard-welcome { padding: 20px 16px; gap: 14px !important; margin-bottom: 20px !important; border: 1px solid #E8E0D8; border-radius: 22px; background: linear-gradient(135deg, #fff, #FDF0EA); box-shadow: 0 6px 24px rgba(70,40,20,.04); }
+    .member-dashboard .dashboard-welcome > :first-child { width: 56px !important; height: 56px !important; flex-shrink: 0; border-radius: 16px !important; font-size: 1.5rem !important; }
+    .member-dashboard .dashboard-welcome > div:last-child { min-width: 0; }
+    .member-dashboard .dashboard-welcome h1 { font-size: clamp(1.35rem, 5.5vw, 1.8rem); overflow-wrap: anywhere; }
+    .member-dashboard .dashboard-welcome p { font-size: .78rem; line-height: 1.6; }
+    .member-dashboard .dashboard-stats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+    .member-dashboard .dashboard-stats > div { min-width: 0; flex-direction: column; align-items: flex-start !important; gap: 12px !important; padding: 16px !important; border-radius: 18px !important; box-shadow: 0 4px 16px rgba(70,40,20,.035); }
+    .member-dashboard .dashboard-stats > div > div { min-width: 0; overflow-wrap: anywhere; }
+    .member-dashboard .member-dashboard-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 4px !important; }
+    .member-dashboard .member-dashboard-grid > div { min-width: 0; }
+    .member-dashboard .member-dashboard-grid > div > div { border-radius: 20px !important; }
+    .member-dashboard .member-dashboard-grid > div > div > div:first-child { flex-wrap: wrap; gap: 12px; padding: 16px !important; }
+    .member-dashboard .member-dashboard-grid h3 { overflow-wrap: anywhere; }
+    .member-dashboard .member-dashboard-grid a { overflow-wrap: anywhere; }
 }
 </style>
 

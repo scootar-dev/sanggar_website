@@ -31,7 +31,8 @@
         <span style="font-weight:800;color:var(--dark);font-size:0.9rem;">Total: {{ $kehadiran->total() }} Sesi Latihan</span>
     </div>
 
-    <div style="overflow-x:auto">
+    <p class="m-table-hint">Geser tabel ke samping untuk melihat detail.</p>
+    <div style="overflow-x:auto" tabindex="0" role="region" aria-label="Tabel riwayat kehadiran">
         <table style="width:100%;border-collapse:collapse;min-width:600px;">
             <thead>
                 <tr style="background:#fafafa">

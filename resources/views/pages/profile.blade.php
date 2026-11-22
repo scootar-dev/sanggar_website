@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Profile Sanggar')
 @section('content')
+<div class="sanggar-profile-page">
 
 {{-- HERO --}}
 <section class="page-hero">
@@ -252,4 +253,45 @@
         <a href="{{ route('register') }}" class="btn-cta">Daftar Sekarang</a>
     </div>
 </section>
+</div>
+<style>
+@media (max-width: 767px) {
+    .sanggar-profile-page .page-hero { padding-top: calc(var(--nav-h) + 28px); padding-bottom: 28px; }
+    .sanggar-profile-page .page-hero__title { font-size: clamp(1.8rem, 7vw, 2.5rem); line-height: 1.2; overflow-wrap: anywhere; }
+    .sanggar-profile-page .page-hero__sub { font-size: .85rem; line-height: 1.7; }
+    .sanggar-profile-page .page-hero__nav { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sanggar-profile-page .phero-nav-link { padding: 8px 12px; min-height: 44px; display: inline-flex; align-items: center; font-size: .75rem; border-radius: 12px; }
+    .sanggar-profile-page .section { padding: 32px 0; scroll-margin-top: calc(var(--nav-h) + 16px); }
+    .sanggar-profile-page .section-header { margin-bottom: 20px; }
+    .sanggar-profile-page .section-heading { font-size: clamp(1.4rem, 5.5vw, 1.85rem); line-height: 1.3; }
+    .sanggar-profile-page .section-sub, .sanggar-profile-page .split-text p { font-size: .85rem; line-height: 1.75; }
+    .sanggar-profile-page .split-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    .sanggar-profile-page .split-image .img-placeholder--tall { width: 100%; height: auto !important; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 18px !important; }
+    .sanggar-profile-page .floating-stat { right: 12px; bottom: -12px; padding: 12px 16px; border-radius: 14px; }
+    .sanggar-profile-page .fs-num { font-size: 1.6rem; }
+    .sanggar-profile-page .stat-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .sanggar-profile-page .stat-pill { min-width: 0; padding: 12px 6px; border-radius: 12px; text-align: center; overflow-wrap: anywhere; }
+    .sanggar-profile-page .stat-pill strong { font-size: 1.3rem; }
+    .sanggar-profile-page .stat-pill span { font-size: .65rem; }
+    .sanggar-profile-page .vm-grid { gap: 16px; }
+    .sanggar-profile-page .vm-card--visi, .sanggar-profile-page .vm-misi { padding: 20px; border-radius: 18px; min-width: 0; overflow-wrap: anywhere; }
+    .sanggar-profile-page .vm-card--visi p, .sanggar-profile-page .misi-list { font-size: .85rem; }
+    .sanggar-profile-page .misi-list li { gap: 12px; padding-block: 12px; }
+    .sanggar-profile-page .misi-num { flex-shrink: 0; }
+    .sanggar-profile-page .people-grid { gap: 12px; }
+    .sanggar-profile-page .person-card { padding: 18px 14px; border-radius: 16px; min-width: 0; overflow-wrap: anywhere; }
+    .sanggar-profile-page .person-card .img-placeholder--circle { width: 72px !important; height: 72px !important; }
+    .sanggar-profile-page .person-name { font-size: 1rem; }
+    .sanggar-profile-page .person-tags { flex-wrap: wrap; gap: 6px; }
+    .sanggar-profile-page .ptag { white-space: normal; }
+    .sanggar-profile-page .org-grid { gap: 12px; }
+    .sanggar-profile-page .org-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; width: calc((100% - 12px) / 2); justify-self: center; }
+    .sanggar-profile-page .cta { padding: 32px 0; }
+    .sanggar-profile-page .cta h2 { font-size: 1.5rem; line-height: 1.35; }
+    .sanggar-profile-page .cta p { font-size: .85rem; }
+}
+@media (min-width: 481px) and (max-width: 767px) {
+    .sanggar-profile-page .people-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; width: calc((100% - 12px) / 2); justify-self: center; }
+}
+</style>
 @endsection
