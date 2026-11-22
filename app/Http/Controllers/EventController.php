@@ -5,11 +5,12 @@ use App\Models\Event;
 class EventController extends Controller {
     public function index() {
         Event::autoUpdateStatus();
+        $umum = Event::where('status', '!=', 'pending_approval')->where('status', '!=', 'selesai')->whereDate('tanggal', '>=', now())->where('kategori', 'umum')->orderBy('tanggal')->get();
         $midhang = Event::where('status', '!=', 'pending_approval')->where('status', '!=', 'selesai')->whereDate('tanggal', '>=', now())->where('kategori', 'midhang_sore')->orderBy('tanggal')->get();
         $studi = Event::where('status', '!=', 'pending_approval')->where('status', '!=', 'selesai')->whereDate('tanggal', '>=', now())->where('kategori', 'studi_budaya')->orderBy('tanggal')->get();
         $pagelaran = Event::where('status', '!=', 'pending_approval')->where('status', '!=', 'selesai')->whereDate('tanggal', '>=', now())->where('kategori', 'pagelaran')->orderBy('tanggal')->get();
         $tarianList = \App\Models\Tarian::where('aktif', true)->orderBy('nama')->get();
-        return view('pages.event', compact('midhang', 'studi', 'pagelaran', 'tarianList'));
+        return view('pages.event', compact('umum', 'midhang', 'studi', 'pagelaran', 'tarianList'));
     }
 
     public function ajukan(\Illuminate\Http\Request $request) {
