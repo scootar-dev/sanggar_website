@@ -136,7 +136,6 @@
             <li><a href="{{ route('profile') }}">Profil</a></li>
             <li><a href="{{ route('event') }}">Event</a></li>
             <li><a href="{{ route('digital-archive') }}">Arsip Digital</a></li>
-            <li><a href="{{ route('test-code') }}">Test Code</a></li>
             @auth
             @if(Auth::user()->role !== 'admin')
             <li><a href="{{ route('dashboard') }}">Dashboard Saya</a></li>
