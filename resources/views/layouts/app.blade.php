@@ -9,12 +9,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/pages.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}?v={{ filemtime(public_path('css/auth.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/pages.css') }}?v={{ filemtime(public_path('css/pages.css')) }}">
     <style>
         /* Navbar Dropdown CSS */
-        .nav-user-dropdown:hover .nav-user-menu {
+        .nav-user-dropdown.is-open .nav-user-menu {
             opacity: 1 !important;
             visibility: visible !important;
             transform: translateY(0) !important;
@@ -123,20 +123,22 @@
                 @endauth
             </div>
 
-            <button class="hamburger" id="hamburger" aria-label="Menu">
+            <button class="hamburger" id="hamburger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileMenu">
                 <span></span><span></span><span></span>
             </button>
         </div>
     </nav>
 
     {{-- MOBILE MENU --}}
-    <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" aria-hidden="true"></div>
+    <nav class="mobile-menu" id="mobileMenu" aria-label="Navigasi mobile" inert>
+        <div class="mobile-menu-heading"><span>JELAJAHI SANGGAR</span><strong>Seni, budaya & cerita.</strong><p>Temukan inspirasi dan ruang untuk berkarya.</p></div>
         <ul>
-            <li><a href="{{ route('home') }}">Beranda</a></li>
-            <li><a href="{{ route('profile') }}">Profil</a></li>
-            <li><a href="{{ route('event') }}">Event</a></li>
-            <li><a href="{{ route('digital-archive') }}">Arsip Digital</a></li>
-            <li><a href="{{ route('test-code') }}">Test Code</a></li>
+            @foreach(['home' => 'Beranda', 'profile' => 'Profil', 'event' => 'Event', 'digital-archive' => 'Arsip Digital', 'test-code' => 'Test Code'] as $menuRoute => $menuLabel)
+            <li><a href="{{ route($menuRoute) }}" @class(['mobile-menu-link', 'active' => request()->routeIs($menuRoute)]) @if(request()->routeIs($menuRoute)) aria-current="page" @endif><span>{{ $menuLabel }}</span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 5 7 7-7 7"/></svg></a></li>
+            @endforeach
+        </ul>
+        <ul class="mobile-menu-account">
             @auth
             @if(Auth::user()->role !== 'admin')
             <li><a href="{{ route('dashboard') }}">Dashboard Saya</a></li>
@@ -147,7 +149,7 @@
             <li>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" style="background:none;border:none;font-size:1rem;cursor:pointer;color:inherit;padding:0">Keluar</button>
+                    <button type="submit" class="mobile-menu-logout">Keluar Akun</button>
                 </form>
             </li>
             @else
@@ -155,7 +157,7 @@
             <li><a href="{{ route('register') }}" class="btn-daftar">Daftar Anggota</a></li>
             @endauth
         </ul>
-    </div>
+    </nav>
 
     {{-- FLASH MESSAGES --}}
     @if(session('success'))
@@ -238,7 +240,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/sweetalert-integration.js') }}"></script>
-    <script src="{{ asset('js/app.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}?v={{ filemtime(public_path('js/app.js')) }}"></script>
 
     {{-- Auto-hide flash after 4 seconds --}}
     <script>
@@ -248,6 +250,19 @@
     }, 4000);
 
     // Toggle Dropdown on Click (Mobile Support)
+    const accountButton = document.querySelector('.nav-user-btn');
+    accountButton?.setAttribute('aria-expanded', 'false');
+    accountButton?.setAttribute('aria-controls', 'accountMenu');
+    const accountMenu = document.querySelector('.nav-user-menu');
+    if (accountMenu) accountMenu.id = 'accountMenu';
+    document.addEventListener('keydown', function(event) {
+        const dropdown = document.querySelector('.nav-user-dropdown.is-open');
+        if (event.key === 'Escape' && dropdown) {
+            dropdown.classList.remove('is-open');
+            accountButton?.setAttribute('aria-expanded', 'false');
+            accountButton?.focus();
+        }
+    });
     document.addEventListener('click', function(event) {
         const dropdown = document.querySelector('.nav-user-dropdown');
         if (!dropdown) return;
@@ -256,14 +271,11 @@
         const menu = dropdown.querySelector('.nav-user-menu');
         
         if (btn.contains(event.target)) {
-            const isVisible = menu.style.visibility === 'visible';
-            menu.style.opacity = isVisible ? '0' : '1';
-            menu.style.visibility = isVisible ? 'hidden' : 'visible';
-            menu.style.transform = isVisible ? 'translateY(10px)' : 'translateY(0)';
+            const open = dropdown.classList.toggle('is-open');
+            btn.setAttribute('aria-expanded', String(open));
         } else if (!menu.contains(event.target)) {
-            menu.style.opacity = '0';
-            menu.style.visibility = 'hidden';
-            menu.style.transform = 'translateY(10px)';
+            dropdown.classList.remove('is-open');
+            btn.setAttribute('aria-expanded', 'false');
         }
     });
 

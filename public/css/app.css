@@ -186,25 +186,47 @@ img {
 }
 
 /* Mobile menu */
+.mobile-menu-backdrop {
+    position: fixed;
+    inset: var(--nav-h) 0 0;
+    z-index: 998;
+    background: rgba(34, 22, 29, .38);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .25s, visibility .25s;
+}
+
+.mobile-menu-backdrop.open { opacity: 1; visibility: visible; }
+
 .mobile-menu {
     display: none;
     position: fixed;
-    inset: var(--nav-h) 0 0 0;
-    background: var(--white);
-    padding: 32px var(--gutter);
+    inset: calc(var(--nav-h) + 12px) 12px auto;
+    max-height: calc(100dvh - var(--nav-h) - 24px);
+    background: #fffdfb;
+    padding: 22px;
+    border: 1px solid rgba(255, 255, 255, .8);
+    border-radius: 24px;
+    box-shadow: 0 24px 64px rgba(45, 25, 35, .22);
     z-index: 999;
-    transform: translateX(-100%);
-    transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+    transform: translateY(-12px) scale(.98);
+    opacity: 0;
+    visibility: hidden;
+    overscroll-behavior: contain;
+    transition: transform .25s, opacity .25s, visibility .25s;
 }
 
 .mobile-menu.open {
-    transform: translateX(0);
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    visibility: visible;
 }
 
 .mobile-menu ul {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 6px;
 }
 
 .mobile-menu a {
@@ -214,9 +236,26 @@ img {
 }
 
 .mobile-menu a.btn-daftar {
-    display: inline-block;
-    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+    margin-top: 0;
+    background: var(--primary);
+    color: white;
 }
+
+.mobile-menu-heading { padding: 0 4px 18px; }
+.mobile-menu-heading > span { color: var(--primary); font-size: .65rem; font-weight: 700; letter-spacing: .16em; }
+.mobile-menu-heading strong { display: block; margin-top: 6px; font-family: 'Playfair Display', serif; font-size: 1.45rem; color: var(--dark); }
+.mobile-menu-heading p { margin-top: 6px; color: var(--muted); font-size: .78rem; }
+.mobile-menu a, .mobile-menu-logout { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 12px 14px; border-radius: 13px; font-size: .9rem; font-weight: 600; }
+.mobile-menu-link svg { opacity: .4; }
+.mobile-menu a:hover, .mobile-menu a.active { background: var(--primary-pale); color: var(--primary); }
+.mobile-menu a.active { box-shadow: inset 3px 0 var(--primary); }
+.mobile-menu .mobile-menu-account { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 16px; }
+.mobile-menu-logout { width: 100%; border: 0; background: #fff1f2; color: #be123c; cursor: pointer; font-family: inherit; }
+.hamburger:focus-visible, .mobile-menu a:focus-visible, .mobile-menu-logout:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+@media (min-width: 1024px) { .mobile-menu-backdrop { display: none; } }
+@media (prefers-reduced-motion: reduce) { .mobile-menu, .mobile-menu-backdrop, .hamburger span { transition: none; } }
 
 /* ============================================
    BUTTONS (global)
