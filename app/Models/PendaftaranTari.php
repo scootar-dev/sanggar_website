@@ -56,4 +56,29 @@ class PendaftaranTari extends Model
     {
         return $query->where('status', 'aktif');
     }
+
+    /**
+     * Otomatis tolak pendaftaran private sesi (khusus status pending) yang waktunya sudah terlewat
+     */
+    public static function autoRejectExpiredPending(): int
+    {
+        $today = now()->toDateString();
+        $currentTime = now()->format('H:i');
+
+        // 1. Yang tanggal latihannya sebelum hari ini
+        $updated1 = static::where('status', 'pending')
+            ->whereNotNull('tanggal_latihan')
+            ->whereDate('tanggal_latihan', '<', $today)
+            ->update(['status' => 'ditolak']);
+
+        // 2. Yang tanggal latihannya hari ini tetapi jam latihannya sudah lewat
+        $updated2 = static::where('status', 'pending')
+            ->whereNotNull('tanggal_latihan')
+            ->whereDate('tanggal_latihan', '=', $today)
+            ->whereNotNull('jam_latihan')
+            ->where('jam_latihan', '<=', $currentTime)
+            ->update(['status' => 'ditolak']);
+
+        return $updated1 + $updated2;
+    }
 }

@@ -132,6 +132,11 @@ class User extends Authenticatable {
         return $this->hasMany(\App\Models\UjianPendaftaran::class);
     }
 
+    public function scopeAnggotaAktif($query)
+    {
+        return $query->where('role', 'anggota')->where('status', 'aktif');
+    }
+
     public function scopeAnggotaVerified($query)
     {
         return $query->where('role', 'anggota')

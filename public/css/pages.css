@@ -646,6 +646,99 @@
     font-weight: 600;
 }
 
+.profile-event-history {
+    margin-top: 64px;
+}
+
+.profile-event-history .event-upcoming-list {
+    padding: 12px 28px 4px;
+}
+
+.profile-event-history .eu-item {
+    position: relative;
+    gap: 16px;
+    padding: 16px 0 16px 16px;
+    border-left: 4px solid #C65D2E;
+    border-bottom: 0;
+    background: #fff;
+}
+
+.profile-event-history .eu-item:not(:last-child)::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 16px;
+    height: 1px;
+    background: var(--border);
+    content: "";
+}
+
+.profile-event-history .eu-date {
+    gap: 4px;
+    min-width: 68px;
+    padding: 10px 12px;
+    background: #FAF9F6;
+    color: #1e1b4b;
+}
+
+.profile-event-history .eu-month {
+    font-size: .68rem;
+    line-height: 1.25;
+    letter-spacing: .02em;
+}
+
+.profile-event-history .eu-info {
+    min-width: 0;
+}
+
+.profile-event-history .eu-info h4 {
+    overflow-wrap: anywhere;
+}
+
+.profile-event-history .eu-meta {
+    display: block;
+}
+
+.profile-event-history__collaboration {
+    margin-top: 4px;
+    color: #6366f1;
+    font-weight: 600;
+}
+
+.profile-event-history .eu-tipe {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.profile-event-history .eu-status {
+    padding: 0;
+    background: transparent;
+    color: #b7791f;
+    font-weight: 700;
+}
+
+.profile-event-history__action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 8px 24px 24px;
+    text-align: center;
+}
+
+.profile-event-history__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 24px;
+    border: 1.5px solid var(--primary);
+    background: var(--primary);
+    color: var(--white);
+    line-height: 1.3;
+    text-align: center;
+}
+
 /* ── FILTER BAR ─────────────────────────── */
 .filter-bar {
     background: var(--white);
@@ -1542,6 +1635,36 @@
     .eu-item {
         flex-wrap: wrap;
         gap: 12px;
+    }
+
+    .profile-event-history .event-upcoming-list {
+        padding: 8px 16px 0;
+    }
+
+    .profile-event-history .eu-item {
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+        padding-left: 12px;
+    }
+
+    .profile-event-history .eu-item:not(:last-child)::after {
+        left: 12px;
+    }
+
+    .profile-event-history .eu-right {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    .profile-event-history__action {
+        padding: 8px 16px 20px;
+    }
+
+    .profile-event-history__button {
+        width: 100%;
+        max-width: 320px;
     }
 
     .eu-right {

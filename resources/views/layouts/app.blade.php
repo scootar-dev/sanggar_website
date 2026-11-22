@@ -9,9 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}">
-    <link rel="stylesheet" href="{{ asset('css/auth.css') }}?v={{ filemtime(public_path('css/auth.css')) }}">
-    <link rel="stylesheet" href="{{ asset('css/pages.css') }}?v={{ filemtime(public_path('css/pages.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/pages.css') }}">
     <style>
         /* Navbar Dropdown CSS */
         .nav-user-dropdown.is-open .nav-user-menu {
@@ -57,7 +57,6 @@
                 <li><a href="{{ route('profile') }}"        class="{{ request()->routeIs('profile')         ? 'active' : '' }}">Profil</a></li>
                 <li><a href="{{ route('event') }}"          class="{{ request()->routeIs('event')           ? 'active' : '' }}">Event</a></li>
                 <li><a href="{{ route('digital-archive') }}" class="{{ request()->routeIs('digital-archive') ? 'active' : '' }}">Arsip Digital</a></li>
-                <li><a href="{{ route('test-code') }}"       class="{{ request()->routeIs('test-code')       ? 'active' : '' }}">Test Code</a></li>
             </ul>
 
             <div class="navbar-actions">
@@ -132,13 +131,12 @@
     {{-- MOBILE MENU --}}
     <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" aria-hidden="true"></div>
     <nav class="mobile-menu" id="mobileMenu" aria-label="Navigasi mobile" inert>
-        <div class="mobile-menu-heading"><span>JELAJAHI SANGGAR</span><strong>Seni, budaya & cerita.</strong><p>Temukan inspirasi dan ruang untuk berkarya.</p></div>
         <ul>
-            @foreach(['home' => 'Beranda', 'profile' => 'Profil', 'event' => 'Event', 'digital-archive' => 'Arsip Digital', 'test-code' => 'Test Code'] as $menuRoute => $menuLabel)
-            <li><a href="{{ route($menuRoute) }}" @class(['mobile-menu-link', 'active' => request()->routeIs($menuRoute)]) @if(request()->routeIs($menuRoute)) aria-current="page" @endif><span>{{ $menuLabel }}</span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 5 7 7-7 7"/></svg></a></li>
-            @endforeach
-        </ul>
-        <ul class="mobile-menu-account">
+            <li><a href="{{ route('home') }}">Beranda</a></li>
+            <li><a href="{{ route('profile') }}">Profil</a></li>
+            <li><a href="{{ route('event') }}">Event</a></li>
+            <li><a href="{{ route('digital-archive') }}">Arsip Digital</a></li>
+            <li><a href="{{ route('test-code') }}">Test Code</a></li>
             @auth
             @if(Auth::user()->role !== 'admin')
             <li><a href="{{ route('dashboard') }}">Dashboard Saya</a></li>

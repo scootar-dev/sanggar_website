@@ -18,10 +18,10 @@ class BackupController extends Controller
 {
     private function getGoogleClient()
     {
-        // Menggunakan config() agar aman saat artisan config:cache di live server
-        $clientId = config('services.google_drive.client_id');
-        $clientSecret = config('services.google_drive.client_secret');
-        $refreshToken = config('services.google_drive.refresh_token');
+        // Menggunakan config() dan fallback env() agar aman di berbagai environment dan saat config:cache
+        $clientId = config('services.google_drive.client_id') ?: env('GOOGLE_DRIVE_CLIENT_ID');
+        $clientSecret = config('services.google_drive.client_secret') ?: env('GOOGLE_DRIVE_CLIENT_SECRET');
+        $refreshToken = config('services.google_drive.refresh_token') ?: env('GOOGLE_DRIVE_REFRESH_TOKEN');
 
         if (!$clientId || !$clientSecret || !$refreshToken) {
             return null;
@@ -50,7 +50,7 @@ class BackupController extends Controller
         if ($client) {
             try {
                 $service = new GoogleDrive($client);
-                $folderId = config('services.google_drive.folder_id');
+                $folderId = config('services.google_drive.folder_id') ?: env('GOOGLE_DRIVE_FOLDER_ID');
                 
                 $query = "mimeType = 'application/zip' and trashed = false";
                 if ($folderId) {
@@ -124,8 +124,8 @@ class BackupController extends Controller
         try {
             set_time_limit(300);
 
-            $timestamp = date('Y-m-d_H-i-s');
-            $filename = "backup-{$timestamp}.zip";
+            $timestamp = date('Y-m-d_H.i.s');
+            $filename = "backup_{$timestamp}.zip";
             
             $backupPath = storage_path("app/backups");
             if (!file_exists($backupPath)) {
@@ -167,24 +167,28 @@ class BackupController extends Controller
             $uploadedToDrive = false;
             
             if ($client) {
-                $service = new GoogleDrive($client);
-                $folderId = config('services.google_drive.folder_id');
+                try {
+                    $service = new GoogleDrive($client);
+                    $folderId = config('services.google_drive.folder_id') ?: env('GOOGLE_DRIVE_FOLDER_ID');
 
-                $fileMetadata = new \Google\Service\Drive\DriveFile([
-                    'name' => $filename,
-                    'parents' => $folderId ? [$folderId] : null
-                ]);
+                    $fileMetadata = new \Google\Service\Drive\DriveFile([
+                        'name' => $filename,
+                        'parents' => $folderId ? [$folderId] : null
+                    ]);
 
-                $content = file_get_contents($zipPath);
-                $file = $service->files->create($fileMetadata, [
-                    'data' => $content,
-                    'mimeType' => 'application/zip',
-                    'uploadType' => 'multipart',
-                    'fields' => 'id'
-                ]);
+                    $content = file_get_contents($zipPath);
+                    $file = $service->files->create($fileMetadata, [
+                        'data' => $content,
+                        'mimeType' => 'application/zip',
+                        'uploadType' => 'multipart',
+                        'fields' => 'id'
+                    ]);
 
-                if ($file->id) {
-                    $uploadedToDrive = true;
+                    if ($file && $file->id) {
+                        $uploadedToDrive = true;
+                    }
+                } catch (Exception $e) {
+                    Log::error('Gagal upload backup ke Google Drive: ' . $e->getMessage());
                 }
             }
 
@@ -387,7 +391,7 @@ class BackupController extends Controller
 
     private function validateFilename(string $filename): void
     {
-        abort_unless(preg_match('/\Abackup-[a-zA-Z0-9_-]+\.zip\z/', $filename), 422, 'Nama backup tidak valid.');
+        abort_unless(preg_match('/\Abackup[-_][a-zA-Z0-9_.-]+\.zip\z/', $filename), 422, 'Nama backup tidak valid.');
     }
 
     private function exportDatabaseSql(): string

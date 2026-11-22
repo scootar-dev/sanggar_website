@@ -24,9 +24,10 @@
         <h2>SANGGAR MULYA BHAKTI</h2>
         @php
             $label = match($tipe ?? 'semua') {
-                'pengunjung' => 'Laporan Data Pengunjung',
-                'private'    => 'Laporan Data Peserta Private',
-                default      => 'Laporan Data Anggota Sanggar',
+                'anggota_tetap' => 'Laporan Data Anggota Tetap',
+                'pengunjung'    => 'Laporan Data Anggota Sementara',
+                'private'       => 'Laporan Data Peserta Private',
+                default         => 'Laporan Data Anggota Sanggar',
             };
         @endphp
         <p>{{ $label }}</p>

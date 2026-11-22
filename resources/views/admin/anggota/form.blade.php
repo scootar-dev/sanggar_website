@@ -63,6 +63,15 @@
                 <div class="form-group" style="margin-bottom:16px">
                     <label>Email <span class="required">*</span></label>
                     <input type="email" name="email" class="form-control" value="{{ old('email',$anggota->email) }}" required>
+                    @if($mode === 'edit')
+                    <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+                        <input type="hidden" name="is_verified" value="0">
+                        <input type="checkbox" name="is_verified" id="is_verified" value="1" {{ old('is_verified', $anggota->email_verified_at ? '1' : '0') == '1' ? 'checked' : '' }} style="width:16px;height:16px;cursor:pointer">
+                        <label for="is_verified" style="margin:0;font-size:.825rem;cursor:pointer;color:{{ $anggota->email_verified_at ? '#15803D' : '#B45309' }};font-weight:600">
+                            {{ $anggota->email_verified_at ? '✓ Email sudah terverifikasi' : 'Tandai email ini sebagai terverifikasi' }}
+                        </label>
+                    </div>
+                    @endif
                 </div>
                 <div class="form-group" style="margin-bottom:16px">
                     <label>No. HP / WhatsApp</label>

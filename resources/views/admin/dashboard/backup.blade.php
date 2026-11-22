@@ -7,7 +7,7 @@
 <div class="page-header">
     <div class="page-header-text">
         <h1>Manajemen Cadangan Data (Backup & Restore)</h1>
-        <p>Cadangkan database dan folder storage media Anda ke Google Drive secara otomatis atau manual.</p>
+        <p>Cadangkan database dan folder storage media Anda ke Google Drive.</p>
     </div>
     <div class="page-header-actions">
         <form action="{{ route('admin.backup.run') }}" method="POST" id="formBackup">

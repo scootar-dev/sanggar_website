@@ -11,6 +11,8 @@ class BookingController extends Controller
 {
     public function index(Request $request)
     {
+        PendaftaranTari::autoRejectExpiredPending();
+
         $filterStatus = $request->get('status', 'semua');
 
         $query = PendaftaranTari::with('user', 'tarian')
@@ -39,6 +41,14 @@ class BookingController extends Controller
 
     public function confirm($id, \App\Services\FcmService $fcmService)
     {
+        $existing = PendaftaranTari::findOrFail($id);
+        $date = $existing->tanggal_latihan ? $existing->tanggal_latihan->toDateString() : null;
+        $time = $existing->jam_latihan ?? '23:59';
+        if ($date && \Carbon\Carbon::parse("{$date} {$time}")->isPast()) {
+            $existing->update(['status' => 'ditolak']);
+            return back()->with('error', 'Sesi latihan ini sudah terlewat waktunya dan otomatis ditolak.');
+        }
+
         $booking = app(\App\Services\BookingService::class)->confirm((int) $id);
 
         // Kirim Push Notification ke User jika FCM token ada
@@ -100,6 +110,8 @@ class BookingController extends Controller
 
     public function getPendingCount()
     {
+        PendaftaranTari::autoRejectExpiredPending();
+
         $count = PendaftaranTari::where('status', 'pending')
             ->whereHas('user', function($q) {
                 $q->where('tipe_anggota', 'pengunjung');

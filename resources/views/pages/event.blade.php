@@ -16,6 +16,7 @@
         <h1 class="page-hero__title">Event &amp; Pentas Mendatang</h1>
         <p class="page-hero__sub">Ikuti berbagai kegiatan, kelas khusus, dan workshop seni yang diselenggarakan di Sanggar Mulya Bhakti.</p>
         <div class="page-hero__nav">
+            <a href="#event_umum" class="phero-nav-link">Event Lainnya</a>
             <a href="#midhang_sore" class="phero-nav-link">Midhang Sore</a>
             <a href="#studi_budaya" class="phero-nav-link">Studi Budaya</a>
             <a href="#pagelaran" class="phero-nav-link">Pagelaran</a>
@@ -167,6 +168,31 @@
     }
 </script>
 
+{{-- EVENT UMUM --}}
+<section class="section" id="event_umum">
+    <div class="container">
+        <div class="section-header">
+            <span class="badge">Agenda</span>
+            <h2 class="section-heading">Event Lainnya</h2>
+            <p class="section-sub">Agenda dan pentas mendatang lainnya dari Sanggar Mulya Bhakti.</p>
+        </div>
+
+        @if($umum->count())
+        <div class="kegiatan-block" style="border: none; padding: 0; background: transparent;">
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;">
+                @foreach($umum as $ev)
+                    @include('components.event_card', ['ev' => $ev, 'color' => '#C65D2E'])
+                @endforeach
+            </div>
+        </div>
+        @else
+        <div style="text-align: center; padding: 40px 20px; background: white; border-radius: 12px; border: 1px dashed #cbd5e1;">
+            <p style="color: #64748b; margin: 0;">Belum ada agenda lainnya yang terjadwal.</p>
+        </div>
+        @endif
+    </div>
+</section>
+
 {{-- 1. MIDHANG SORE --}}
 <section class="section" id="midhang_sore">
     <div class="container">
@@ -310,7 +336,7 @@
         </div>
         @else
         <div style="text-align: center; padding: 40px 20px; background: white; border-radius: 12px; border: 1px dashed #cbd5e1;">
-            <p style="color: #64748b; margin: 0;">Jadwal Studi Budaya tahun ini belum dirilis oleh Admin.</p>
+            <p style="color: #64748b; margin: 0;">Belum ada jadwal Studi Budaya terdekat.</p>
         </div>
         @endif
     </div>

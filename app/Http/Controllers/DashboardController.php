@@ -24,6 +24,9 @@ class DashboardController extends Controller
     */
     public function index()
     {
+        Event::autoUpdateStatus();
+        PendaftaranTari::autoRejectExpiredPending();
+
         $user = Auth::user();
         if ($user->role === 'admin') {return redirect()->route('admin.dashboard');}
         if ($user->tipe_anggota === 'pengunjung') {return $this->guestDashboard($user);}

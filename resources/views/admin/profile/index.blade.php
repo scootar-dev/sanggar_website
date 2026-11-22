@@ -17,24 +17,6 @@
 </div>
 
 {{-- TABS --}}
-<section class="card" id="media-sosial" style="margin-bottom:24px">
-    <div class="card-header"><h2 class="card-title">Media Sosial Footer</h2></div>
-    <div class="card-body">
-        <p>Atur tautan Instagram, Facebook, dan YouTube pada bagian “Ikuti Kami”. Kosongkan untuk menyembunyikan tautan.</p>
-        <form method="POST" action="{{ route('admin.profil.social') }}">
-            @csrf
-            @foreach(['instagram' => 'Instagram', 'facebook' => 'Facebook', 'youtube' => 'YouTube'] as $field => $label)
-                <div class="form-group">
-                    <label for="social-{{ $field }}">Link {{ $label }}</label>
-                    <input id="social-{{ $field }}" type="text" name="{{ $field }}" class="form-control" maxlength="255" value="{{ old($field, $profil->$field) }}" placeholder="https://www.{{ $field }}.com/{{ $field === 'youtube' ? '@' : '' }}sanggarmulyabhakti">
-                    @error($field)<p role="alert" style="color:#dc2626">{{ $message }}</p>@enderror
-                    @if($profil->socialUrl($field))<a href="{{ $profil->socialUrl($field) }}" target="_blank" rel="noopener noreferrer">Buka {{ $label }} saat ini</a>@endif
-                </div>
-            @endforeach
-            <button type="submit" class="btn btn-primary">Simpan Media Sosial Footer</button>
-        </form>
-    </div>
-</section>
 <div style="display:flex;gap:4px;border-bottom:2px solid #E8E0D8;margin-bottom:28px">
     @foreach([
         ['profil',    'Profil Sanggar'],
@@ -53,7 +35,7 @@
 {{-- ══════════ TAB: PROFIL ══════════ --}}
 <div id="tab-profil" class="tab-content">
 <div class="card">
-    <div class="card-header"><span class="card-title">Informasi Dasar Sanggar</span></div>
+    <div class="card-header"><span class="card-title">Informasi Data Sanggar</span></div>
     <div class="card-body">
     <form method="POST" action="{{ route('admin.profil.update') }}" enctype="multipart/form-data">
         @csrf
@@ -77,6 +59,30 @@
             <div class="form-group">
                 <label>Email</label>
                 <input type="email" name="email" class="form-control" value="{{ old('email',$profil->email) }}">
+            </div>
+            <div class="form-group">
+                <label for="social-youtube">Link YouTube</label>
+                <input id="social-youtube" type="text" name="youtube" class="form-control" maxlength="255" value="{{ old('youtube', $profil->youtube) }}" placeholder="https://www.youtube.com/@aristopeng">
+                @error('youtube')<p role="alert" style="color:#dc2626;font-size:.8rem;margin-top:4px">{{ $message }}</p>@enderror
+                @if($profil->socialUrl('youtube'))
+                    <a href="{{ $profil->socialUrl('youtube') }}" target="_blank" rel="noopener noreferrer" style="font-size:.8rem;color:var(--primary);text-decoration:none;margin-top:4px;display:inline-block">Buka YouTube saat ini ↗</a>
+                @endif
+            </div>
+            <div class="form-group">
+                <label for="social-instagram">Link Instagram</label>
+                <input id="social-instagram" type="text" name="instagram" class="form-control" maxlength="255" value="{{ old('instagram', $profil->instagram) }}" placeholder="https://www.instagram.com/sanggarmulya_bhakti">
+                @error('instagram')<p role="alert" style="color:#dc2626;font-size:.8rem;margin-top:4px">{{ $message }}</p>@enderror
+                @if($profil->socialUrl('instagram'))
+                    <a href="{{ $profil->socialUrl('instagram') }}" target="_blank" rel="noopener noreferrer" style="font-size:.8rem;color:var(--primary);text-decoration:none;margin-top:4px;display:inline-block">Buka Instagram saat ini ↗</a>
+                @endif
+            </div>
+            <div class="form-group">
+                <label for="social-facebook">Link Facebook</label>
+                <input id="social-facebook" type="text" name="facebook" class="form-control" maxlength="255" value="{{ old('facebook', $profil->facebook) }}" placeholder="https://www.facebook.com/sanggar.mulyabhakti">
+                @error('facebook')<p role="alert" style="color:#dc2626;font-size:.8rem;margin-top:4px">{{ $message }}</p>@enderror
+                @if($profil->socialUrl('facebook'))
+                    <a href="{{ $profil->socialUrl('facebook') }}" target="_blank" rel="noopener noreferrer" style="font-size:.8rem;color:var(--primary);text-decoration:none;margin-top:4px;display:inline-block">Buka Facebook saat ini ↗</a>
+                @endif
             </div>
             <div class="form-group" style="grid-column:span 2">
                 <label>Alamat</label>

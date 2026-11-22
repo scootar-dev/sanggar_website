@@ -21,7 +21,6 @@
                 <li><a href="{{ route('profile') }}" class="{{ request()->routeIs('profile') ? 'active' : '' }}">Profile</a></li>
                 <li><a href="{{ route('event') }}" class="{{ request()->routeIs('event') ? 'active' : '' }}">Event</a></li>
                 <li><a href="{{ route('digital-archive') }}" class="{{ request()->routeIs('digital-archive') ? 'active' : '' }}">Digital Archive</a></li>
-                <li><a href="{{ route('test-code') }}" class="{{ request()->routeIs('test-code') ? 'active' : '' }}">Test Code</a></li>
             </ul>
             <div class="navbar-actions">
                 <a href="{{ route('login') }}" class="btn-masuk">Masuk</a>
@@ -40,7 +39,6 @@
             <li><a href="{{ route('profile') }}">Profile</a></li>
             <li><a href="{{ route('event') }}">Event</a></li>
             <li><a href="{{ route('digital-archive') }}">Digital Archive</a></li>
-            <li><a href="{{ route('test-code') }}">Test Code</a></li>
             <li><a href="{{ route('login') }}">Masuk</a></li>
             <li><a href="{{ route('register') }}" class="btn-daftar">Daftar Anggota</a></li>
         </ul>
