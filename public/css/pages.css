@@ -647,7 +647,7 @@
 }
 
 .profile-event-history {
-    margin-top: 48px;
+    margin-top: 64px;
 }
 
 .profile-event-history .event-upcoming-list {
@@ -719,15 +719,22 @@
 
 .profile-event-history__action {
     display: flex;
+    align-items: center;
     justify-content: center;
+    width: 100%;
     padding: 8px 24px 24px;
+    text-align: center;
 }
 
 .profile-event-history__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
     padding: 10px 24px;
-    border: 1.5px solid #C65D2E;
-    background: transparent;
-    color: #C65D2E;
+    border: 1.5px solid var(--primary);
+    background: var(--primary);
+    color: var(--white);
     line-height: 1.3;
     text-align: center;
 }

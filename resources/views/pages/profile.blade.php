@@ -208,7 +208,7 @@
         @if($pastEvents->count())
         <div class="kegiatan-block profile-event-history">
             <div class="kegiatan-block__header">
-                <div class="kb-icon kb-icon--purple">
+                <div class="kb-icon">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                 </div>
                 <h3>Rekam Jejak &amp; Portofolio Event</h3>
@@ -229,7 +229,7 @@
                     </div>
                     <div class="eu-right">
                         <span class="eu-tipe">{{ ucfirst(str_replace('_', ' ', $ev->kategori)) }}</span>
-                        @if($ev->hasil)<span class="eu-status"> 🏆 {{ $ev->hasil }}</span>@endif
+                        @if($ev->hasil)<span class="eu-status">{{ $ev->hasil }}</span>@endif
                     </div>
                 </div>
                 @endforeach
