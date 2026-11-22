@@ -14,6 +14,15 @@ class PageCompatibilityTest extends TestCase
         }
     }
 
+    public function test_profile_stylesheet_url_changes_when_the_file_changes(): void
+    {
+        $version = filemtime(public_path('css/pages.css'));
+
+        $this->get('/profile')
+            ->assertOk()
+            ->assertSee('css/pages.css?v='.$version, false);
+    }
+
     public function test_member_pages_render_with_current_schema(): void
     {
         $this->actingAs(User::factory()->create());
