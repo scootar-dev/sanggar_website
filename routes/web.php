@@ -220,6 +220,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/backup/restore/{filename}', [BackupController::class, 'restore'])->name('backup.restore')->where('filename', '.*');
     Route::delete('/backup/delete/{filename}', [BackupController::class, 'delete'])->name('backup.delete')->where('filename', '.*');
     Route::get('/backup/download/{filename}', [BackupController::class, 'download'])->name('backup.download')->where('filename', '.*');
+
+    // Pengaturan Akun Admin
+    Route::get('/pengaturan-akun', [\App\Http\Controllers\Admin\AccountController::class, 'index'])->name('account.index');
+    Route::post('/pengaturan-akun/profil', [\App\Http\Controllers\Admin\AccountController::class, 'updateProfile'])->name('account.profile');
+    Route::post('/pengaturan-akun/password', [\App\Http\Controllers\Admin\AccountController::class, 'updatePassword'])->name('account.password');
 });
 
 // ── CHATBOT AI ────────────────────────────────────────────────────────

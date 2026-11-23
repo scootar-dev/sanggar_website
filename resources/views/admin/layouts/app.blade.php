@@ -34,6 +34,10 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 Dashboard
             </a>
+            <a href="{{ route('admin.account.index') }}" class="nav-item {{ request()->routeIs('admin.account*') ? 'active' : '' }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Pengaturan Akun
+            </a>
             <a href="{{ route('admin.backup.index') }}" class="nav-item {{ request()->routeIs('admin.backup*') ? 'active' : '' }}">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 Backup &amp; Restore
@@ -197,7 +201,7 @@
                 </a>
             </div>
 
-            <div class="topbar-user">
+            <a href="{{ route('admin.account.index') }}" class="topbar-user" title="Pengaturan Akun Admin" style="text-decoration:none;display:flex;align-items:center;gap:12px;padding:4px 8px;border-radius:10px;transition:background .2s;" onmouseover="this.style.background='#F3F4F6'" onmouseout="this.style.background='transparent'">
                 @if(Auth::user()->foto)
                     <img src="{{ asset('storage/'.Auth::user()->foto) }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
                 @else
@@ -205,9 +209,12 @@
                 @endif
                 <div class="user-info">
                     <span class="user-name">{{ Auth::user()->name }}</span>
-                    <span class="user-role">Administrator</span>
+                    <span class="user-role" style="display:flex;align-items:center;gap:4px;">
+                        Administrator
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    </span>
                 </div>
-            </div>
+            </a>
         </div>
     </header>
 

@@ -71,8 +71,9 @@ class AuthController extends Controller
             // Akun lama (sebelum sistem OTP) otomatis diverifikasi
             // Akun baru yang belum verifikasi: harus lewat OTP
             if (is_null($user->email_verified_at)) {
-                if ($user->created_at < '2026-05-21' && $user->updated_at < '2026-05-21') {
-                    // Akun lama (sebelum OTP system): auto-verifikasi
+                if ($user->created_at < '2026-05-21') {
+                    // Akun lama (sebelum OTP system): auto-verifikasi.
+                    // Hanya created_at yang dipakai; updated_at berubah saat admin mengedit data.
                     $user->email_verified_at = now();
                     $user->save();
                 } else {

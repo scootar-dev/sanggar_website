@@ -6,10 +6,21 @@ use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder {
     public function run(): void {
-        User::updateOrCreate(['email'=>'admin@sanggarmulya.id'],[
-            'name'=>'Admin Sanggar','alamat'=>'Indramayu, Jawa Barat',
-            'password'=>Hash::make('admin123'),'role'=>'admin','status'=>'aktif',
-            'email_verified_at'=>now()]);
+        // Admin Akun Utama
+        $admin = User::where('role', 'admin')->first() ?? new User();
+        $admin->name = 'Admin Sanggar Mulya Bhakti';
+        $admin->email = 'wangiindriyaantahamahadi@gmail.com';
+        $admin->alamat = 'Indramayu, Jawa Barat';
+        $admin->password = Hash::make('wangi603338');
+        $admin->role = 'admin';
+        $admin->status = 'aktif';
+        $admin->email_verified_at = now();
+        $admin->save();
+
+        // Hapus akun default lama jika ada
+        User::where('email', 'admin@sanggarmulya.id')
+            ->where('id', '!=', $admin->id)
+            ->delete();
         foreach([
             ['name'=>'Siti Rahayu','email'=>'siti@example.com','alamat'=>'Jl. Melati No. 12, Indramayu','no_hp'=>'081234567890'],
             ['name'=>'Budi Santoso','email'=>'budi@example.com','alamat'=>'Jl. Mawar No. 5, Cirebon','no_hp'=>'082345678901'],

@@ -42,8 +42,9 @@ class AuthApiController extends Controller
                 $user->email_verified_at = now();
                 $user->save();
             }
-            // Akun lama (sebelum sistem OTP): auto-verifikasi
-            elseif ($user->created_at < '2026-05-21' && $user->updated_at < '2026-05-21') {
+            // Akun lama (sebelum sistem OTP): auto-verifikasi.
+            // Hanya created_at yang dipakai; updated_at berubah saat admin mengedit data.
+            elseif ($user->created_at < '2026-05-21') {
                 $user->email_verified_at = now();
                 $user->save();
             }
